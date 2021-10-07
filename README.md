@@ -3,6 +3,8 @@ A practical framework to evaluate the privacy-utility tradeoff of synthetic data
 
 Based on "Synthetic Data - Anonymisation Groundhog Day, Theresa Stadler, Bristena Oprisanu, and Carmela Troncoso, [arXiv](https://arxiv.org/abs/2011.07018), 2020"
 
+This fork contains changes to the code that allow it to run within the UCL Data Safe Haven and used for assessing the privacy and utility of the CCHIC database, see [this](https://github.com/alan-turing-institute/QUIPP-CC-HIC) repository for more details on the project.
+
 # Attack models
 The module `attack_models` so far includes
 
@@ -31,7 +33,7 @@ pip install -r requirements.txt
 
 ## Dependencies
 The `CTGAN` model depends on a fork of the original model training algorithm that can be found here
-[CTGAN-SPRING](https://github.com/spring-epfl/CTGAN.git)
+[CTGAN-Turing](https://github.com/alan-turing-institute/CTGAN)
 
 To install the correct version clone the repository above and run
 ```
@@ -39,7 +41,13 @@ cd CTGAN
 make install
 ```
 
-Add the path to this directory to your python path. You can also add this line
+You then need to add the path to this directory to your python path by typing the following line in a command window (note this will only work for the current command window session so you need to do it every time you open a new command window):
+```
+set PYTHONPATH=%PYTHONPATH%;ctgan_path
+```
+where `ctgan_path` is the path to this directory (e.g. `N:\projects\CTGAN`). Note this applies to the DSH Windows environment.
+
+For Linux/Mac environments, you can also add this line
 in your shell configuration file (e.g., `~/.bashrc`) to load it automatically.
 ```bash
 # Execute this in the CTGAN folder, otherwise replace `pwd` with the actual path
