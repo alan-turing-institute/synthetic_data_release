@@ -1,0 +1,16 @@
+{
+  "nIter": 4,
+  "sizeRawA": 5000,
+  "nSynA": 3,
+  "nShadows": 3,
+  "sizeRawT": 1000,
+  "sizeSynT": 1000,
+  "nSynT": 2,
+  "nTargets": 0,
+  "Targets": ["ID83", "ID17546", "ID13903"],
+  "generativeModels": {
+    "PrivBayes": [[25, 1, 1.0]]
+  },
+  "sanitisationTechniques": {
+  }
+}
