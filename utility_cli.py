@@ -62,9 +62,15 @@ def main():
     ########################
     #### GAME INPUTS #######
     ########################
-    # Train test split
-    rawTrain = rawPop.query(runconfig['dataFilter']['train'])
-    rawTest = rawPop.query(runconfig['dataFilter']['test'])
+    # Train test split - if neither 'dataFilter' or 'train_fraction' are
+    # in the json file, KeyError is thrown
+    # When using 'train_fraction', 'Targets' and 'TestRecords' should be left empty
+    if runconfig.get('dataFilter') is None:
+        rawTrain = rawPop.sample(frac=runconfig['train_fraction'])
+        rawTest = rawPop.loc[~rawPop.index.isin(rawTrain.index)]
+    else:
+        rawTrain = rawPop.query(runconfig['dataFilter']['train'])
+        rawTest = rawPop.query(runconfig['dataFilter']['test'])
 
     # Pick targets
     targetIDs = choice(list(rawTrain.index), size=runconfig['nTargets'], replace=False).tolist()
