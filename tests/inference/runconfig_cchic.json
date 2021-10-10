@@ -10,7 +10,7 @@
   "positive_label": {"hiv": "1.0", "cir": "1.0"},
   "Targets": ["ID83", "ID17546", "ID13903"],
   "generativeModels": {
-    "IndependentHistogram": [[25]]
+    "IndependentHistogram": [[25]],
     "PrivBayes": [[25, 1, 1.0]]
   },
   "sanitisationTechniques": {}
