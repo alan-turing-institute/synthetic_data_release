@@ -61,11 +61,16 @@ import ctgan
 from within your virtualenv `python`
 
 # Example runs
+To run within CCHIC DSH with the CCHIC data as raw dataset, you need to first run [this](https://github.com/alan-turing-institute/QUIPP-CC-HIC/blob/develop/quipp-cc-hic/synthesis/synthesis_pipeline.ipynb) notebook within DSH. 
+This will generate a dataset that you then need to place within the `/data` directory in this repo. You also need to place a .json metadata file in the same directory. 
+This is not shared here as it might contain sensitive information and needs to be requested from one of the developes of this repo.
+
 To run a privacy evaluation with respect to the privacy concern of linkability you can run
 
 ```
-python linkage_cli.py -D data/texas -RC tests/linkage/runconfig.json -O tests/linkage
+python linkage_cli.py -D data/cchic_cleaned -RC tests/linkage/runconfig_cchic.json -O tests/linkage
 ```
+
 
 The results file produced after successfully running the script will be written to `tests/linkage` and can be parsed with the function `load_results_linkage` provided in `utils/analyse_results.py`. 
 
@@ -73,7 +78,7 @@ The results file produced after successfully running the script will be written 
 To run a privacy evaluation with respect to the privacy concern of inference you can run
 
 ```
-python inference_cli.py -D data/texas -RC tests/inference/runconfig.json -O tests/inference
+python inference_cli.py -D data/cchic_cleaned -RC tests/inference/runconfig_cchic.json -O tests/inference
 ```
 
 The results file produced after successfully running the script can be parsed with the function `load_results_inference` provided in `utils/analyse_results.py`.
@@ -82,7 +87,7 @@ The results file produced after successfully running the script can be parsed wi
 To run a utility evaluation with respect to a simple classification task as utility function run
 
 ```
-python utility_cli.py -D data/texas -RC tests/utility/runconfig.json -O tests/utility
+python utility_cli.py -D data/cchic_cleaned -RC tests/utility/runconfig_cchic.json -O tests/utility
 ```
 
 The results file produced after successfully running the script can be parsed with the function `load_results_utility` provided in `utils/analyse_results.py`.
