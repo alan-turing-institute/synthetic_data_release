@@ -130,11 +130,13 @@ def load_results_inference(dirname, dpath, configpath):
         rawRes = game.groupby(['TargetModel']).get_group('Raw')
         if all(game['SensitiveType'].isin([INTEGER, FLOAT])):
             pCorrectRIn, pCorrectROut = get_probs_correct(rawRes['ProbCorrect'], rawRes['TargetPresence'])
-            TruePositivesInR, PositivesInR, TruePositivesOutR, PositivesOutR, TPrateInR, TPrateOutR, TPRateTotalR = \
-                None, None, None, None, None, None, None
+            TruePositivesInR, PositivesInR, TruePositivesOutR, PositivesOutR, TPrateInR, \
+            TPrateOutR, TPRateTotalR, matchesRIn, totalRIn, matchesROut, totalROut = \
+                None, None, None, None, None, None, None, None, None, None, None
 
         elif all(game['SensitiveType'].isin([CATEGORICAL, ORDINAL])):
-            pCorrectRIn, pCorrectROut = get_accuracy(rawRes['AttackerGuess'], rawRes['TargetSecret'], rawRes['TargetPresence'])
+            matchesRIn, totalRIn, matchesROut, totalROut, pCorrectRIn, pCorrectROut = \
+                get_accuracy(rawRes['AttackerGuess'], rawRes['TargetSecret'], rawRes['TargetPresence'])
             v = np.unique(rawRes["SensitiveAttribute"])
             if len(v) == 1:
                 TruePositivesInR, PositivesInR, TruePositivesOutR, PositivesOutR, TPrateInR, TPrateOutR, TPRateTotalR = \
@@ -155,11 +157,13 @@ def load_results_inference(dirname, dpath, configpath):
             if gm != 'Raw':
                 if all(gmRes['SensitiveType'].isin([INTEGER, FLOAT])):
                     pCorrectSIn, pCorrectSOut = get_probs_correct(gmRes['ProbCorrect'], gmRes['TargetPresence'])
-                    TruePositivesInS, PositivesInS, TruePositivesOutS, PositivesOutS, TPrateInS, TPrateOutS, TPRateTotalS = \
-                        None, None, None, None, None, None, None
+                    TruePositivesInS, PositivesInS, TruePositivesOutS, PositivesOutS, TPrateInS, \
+                    TPrateOutS, TPRateTotalS, matchesSIn, totalSIn, matchesSOut, totalSOut = \
+                        None, None, None, None, None, None, None, None, None, None, None
 
                 elif all(gmRes['SensitiveType'].isin([CATEGORICAL, ORDINAL])):
-                    pCorrectSIn, pCorrectSOut = get_accuracy(gmRes['AttackerGuess'], gmRes['TargetSecret'], gmRes['TargetPresence'])
+                    matchesSIn, totalSIn, matchesSOut, totalSOut, pCorrectSIn, pCorrectSOut = \
+                        get_accuracy(gmRes['AttackerGuess'], gmRes['TargetSecret'], gmRes['TargetPresence'])
                     v = np.unique(gmRes["SensitiveAttribute"])
                     if len(v) == 1:
                         TruePositivesInS, PositivesInS, TruePositivesOutS, PositivesOutS, TPrateInS, TPrateOutS, TPRateTotalS = \
@@ -176,6 +180,8 @@ def load_results_inference(dirname, dpath, configpath):
                 pSuccessS = get_prob_success_total(pCorrectSIn, pCorrectSOut, runconfig["probIn"])
 
                 resAdv.append(gameParams + (gm, pCorrectRIn, pCorrectROut, advR, pCorrectSIn, pCorrectSOut, advS,
+                                            matchesRIn, totalRIn, matchesROut, totalROut,
+                                            matchesSIn, totalSIn, matchesSOut, totalSOut,
                                             TruePositivesInR, PositivesInR, TruePositivesOutR, PositivesOutR,
                                             pSuccessR, TPrateInR, TPrateOutR, TPRateTotalR,
                                             TruePositivesInS, PositivesInS, TruePositivesOutS, PositivesOutS,
@@ -186,6 +192,8 @@ def load_results_inference(dirname, dpath, configpath):
     resAdv.columns  =['Dataset', 'TargetID', 'SensitiveAttribute', 'Run', 'TargetModel',
                       'ProbCorrectRawIn', 'ProbCorrectRawOut', 'AdvantageRaw',
                       'ProbCorrectSynIn', 'ProbCorrectSynOut', 'AdvantageSyn',
+                      'MatchesInRaw', 'TotalInRaw', 'MatchesOutRaw', 'TotalOutRaw',
+                      'MatchesInSyn', 'TotalInSyn', 'MatchesOutSyn', 'TotalOutSyn',
                       'TruePositivesInRaw', 'PositivesInRaw', 'TruePositivesOutRaw', 'PositivesOutRaw',
                       'ProbSuccessRaw', 'TPRateInRaw', 'TPRateOutRaw', 'TPRateTotalRaw',
                       'TruePositivesInSyn', 'PositivesInSyn', 'TruePositivesOutSyn', 'PositivesOutSyn',

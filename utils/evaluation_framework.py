@@ -11,10 +11,15 @@ def get_accuracy(guesses, labels, targetPresence):
     idxIn = where(targetPresence == LABEL_IN)[0]
     idxOut = where(targetPresence == LABEL_OUT)[0]
 
-    pIn = sum([g == l for g,l in zip(guesses[idxIn], labels[idxIn])])/len(idxIn)
-    pOut = sum([g == l for g,l in zip(guesses[idxOut], labels[idxOut])])/len(idxOut)
+    matchesIn = sum([g == l for g,l in zip(guesses[idxIn], labels[idxIn])])
+    totalIn = len(idxIn)
+    pIn = matchesIn/totalIn
 
-    return pIn, pOut
+    matchesOut = sum([g == l for g,l in zip(guesses[idxOut], labels[idxOut])])
+    totalOut = len(idxOut)
+    pOut = matchesOut/totalOut
+
+    return matchesIn, totalIn, matchesOut, totalOut, pIn, pOut
 
 
 def get_tp_fp_rates(guesses, labels):
