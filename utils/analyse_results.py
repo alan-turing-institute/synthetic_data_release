@@ -6,6 +6,7 @@ from glob import glob
 from pandas import DataFrame, concat
 from itertools import cycle
 from os import path
+import numpy as np
 
 from warnings import filterwarnings
 filterwarnings('ignore')
@@ -73,7 +74,7 @@ def load_results_linkage(dirname):
     return resAgg
 
 
-def load_results_inference(dirname, dpath):
+def load_results_inference(dirname, dpath, configpath):
     """
     Helper function to load results of privacy evaluation under risk of inference
     :param dirname: str: Directory that contains results files
@@ -81,6 +82,9 @@ def load_results_inference(dirname, dpath):
     :return: results: DataFrame: Results of privacy evaluation
     """
     df, metadata = load_local_data_as_df(dpath)
+
+    with open(f'{configpath}.json') as f:
+        runconfig = json.load(f)
 
     files = glob(path.join(dirname, f'ResultsMLEAI_*.json'))
     resList = []
@@ -126,36 +130,92 @@ def load_results_inference(dirname, dpath):
         rawRes = game.groupby(['TargetModel']).get_group('Raw')
         if all(game['SensitiveType'].isin([INTEGER, FLOAT])):
             pCorrectRIn, pCorrectROut = get_probs_correct(rawRes['ProbCorrect'], rawRes['TargetPresence'])
+            tpInR, tnInR, fpInR, fnInR, \
+            tpOutR, tnOutR, fpOutR, fnOutR, \
+            TPrateInR, TPrateOutR, TPrateTotalR, \
+            PPVrateInR, PPVrateOutR, PPVrateTotalR, \
+            F1InR, F1OutR, F1TotalR = \
+                np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, \
+                np.nan, np.nan, np.nan, np.nan, np.nan, np.nan
 
         elif all(game['SensitiveType'].isin([CATEGORICAL, ORDINAL])):
-            pCorrectRIn, pCorrectROut = get_accuracy(rawRes['AttackerGuess'], rawRes['TargetSecret'], rawRes['TargetPresence'])
+            pCorrectRIn, pCorrectROut = \
+                get_accuracy(rawRes['AttackerGuess'], rawRes['TargetSecret'], rawRes['TargetPresence'])
+            v = np.unique(rawRes["SensitiveAttribute"])
+            if len(v) == 1:
+                tpInR, tnInR, fpInR, fnInR, \
+                tpOutR, tnOutR, fpOutR, fnOutR, \
+                TPrateInR, TPrateOutR, TPrateTotalR, \
+                PPVrateInR, PPVrateOutR, PPVrateTotalR, \
+                F1InR, F1OutR, F1TotalR = \
+                    get_rates(rawRes['AttackerGuess'], rawRes['TargetSecret'],
+                                 rawRes['TargetPresence'],
+                                 runconfig["positive_label"][v[0]],
+                                 runconfig["probIn"])
+            else:
+                raise ValueError("More than one sensitive attribute in the same group")
 
         else:
             raise ValueError('Unknown sensitive attribute type.')
 
         advR = get_ai_advantage(pCorrectRIn, pCorrectROut)
+        pSuccessR = get_prob_success_total(pCorrectRIn, pCorrectROut, runconfig["probIn"])
 
         for gm, gmRes in game.groupby(['TargetModel']):
             if gm != 'Raw':
                 if all(gmRes['SensitiveType'].isin([INTEGER, FLOAT])):
                     pCorrectSIn, pCorrectSOut = get_probs_correct(gmRes['ProbCorrect'], gmRes['TargetPresence'])
+                    tpInS, tnInS, fpInS, fnInS, \
+                    tpOutS, tnOutS, fpOutS, fnOutS, \
+                    TPrateInS, TPrateOutS, TPrateTotalS, \
+                    PPVrateInS, PPVrateOutS, PPVrateTotalS, \
+                    F1InS, F1OutS, F1TotalS = \
+                        np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, \
+                        np.nan, np.nan, np.nan, np.nan, np.nan, np.nan
 
                 elif all(gmRes['SensitiveType'].isin([CATEGORICAL, ORDINAL])):
-                    pCorrectSIn, pCorrectSOut = get_accuracy(gmRes['AttackerGuess'], gmRes['TargetSecret'], gmRes['TargetPresence'])
-
+                    pCorrectSIn, pCorrectSOut = \
+                        get_accuracy(gmRes['AttackerGuess'], gmRes['TargetSecret'], gmRes['TargetPresence'])
+                    v = np.unique(gmRes["SensitiveAttribute"])
+                    if len(v) == 1:
+                        tpInS, tnInS, fpInS, fnInS, \
+                        tpOutS, tnOutS, fpOutS, fnOutS, \
+                        TPrateInS, TPrateOutS, TPrateTotalS, \
+                        PPVrateInS, PPVrateOutS, PPVrateTotalS, \
+                        F1InS, F1OutS, F1TotalS = \
+                            get_rates(gmRes['AttackerGuess'], gmRes['TargetSecret'],
+                                         gmRes['TargetPresence'],
+                                         runconfig["positive_label"][v[0]],
+                                         runconfig["probIn"])
+                    else:
+                        raise ValueError("More than one sensitive attribute in the same group")
                 else:
                     raise ValueError('Unknown sensitive attribute type.')
 
                 advS = get_ai_advantage(pCorrectSIn, pCorrectSOut)
+                pSuccessS = get_prob_success_total(pCorrectSIn, pCorrectSOut, runconfig["probIn"])
 
-
-                resAdv.append(gameParams + (gm, pCorrectRIn, pCorrectROut, advR, pCorrectSIn, pCorrectSOut, advS))
+                resAdv.append(gameParams + (gm, pCorrectRIn, pCorrectROut, advR, pCorrectSIn, pCorrectSOut, advS,
+                                            tpInR, tnInR, fpInR, fnInR, tpInS, tnInS, fpInS, fnInS,
+                                            tpOutR, tnOutR, fpOutR, fnOutR, tpOutS, tnOutS, fpOutS, fnOutS,
+                                            pSuccessR, pSuccessS,
+                                            TPrateInR, TPrateOutR, TPrateTotalR, TPrateInS, TPrateOutS, TPrateTotalS,
+                                            PPVrateInR, PPVrateOutR, PPVrateTotalR, PPVrateInS, PPVrateOutS, PPVrateTotalS,
+                                            F1InR, F1OutR, F1TotalR, F1InS, F1OutS, F1TotalS))
 
 
     resAdv = DataFrame(resAdv)
-    resAdv.columns  =['Dataset', 'TargetID', 'SensitiveAttribute','Run', 'TargetModel',
+    resAdv.columns = ['Dataset', 'TargetID', 'SensitiveAttribute', 'Run', 'TargetModel',
                       'ProbCorrectRawIn', 'ProbCorrectRawOut', 'AdvantageRaw',
-                      'ProbCorrectSynIn', 'ProbCorrectSynOut', 'AdvantageSyn']
+                      'ProbCorrectSynIn', 'ProbCorrectSynOut', 'AdvantageSyn',
+                      'TruePositivesRawIn', 'TrueNegativesRawIn', 'FalsePositivesRawIn', 'FalseNegativesRawIn',
+                      'TruePositivesSynIn', 'TrueNegativesSynIn', 'FalsePositivesSynIn', 'FalseNegativesSynIn',
+                      'TruePositivesRawOut', 'TrueNegativesRawOut', 'FalsePositivesRawOut', 'FalseNegativesRawOut',
+                      'TruePositivesSynOut', 'TrueNegativesSynOut', 'FalsePositivesSynOut', 'FalseNegativesSynOut',
+                      'ProbSuccessRaw', 'ProbSuccessSyn',
+                      'TPRateRawIn', 'TPRateRawOut', 'TPRateRawTotal', 'TPRateSynIn', 'TPRateSynOut', 'TPRateSynTotal',
+                      'PPVRateRawIn', 'PPVRateRawOut', 'PPVRateRawTotal', 'PPVRateSynIn', 'PPVRateSynOut', 'PPVRateSynTotal',
+                      'F1RateRawIn', 'F1RateRawOut', 'F1RateRawTotal', 'F1RateSynIn', 'F1RateSynOut', 'F1RateSynTotal']
 
     resAdv['PrivacyGain'] = resAdv['AdvantageRaw'] - resAdv['AdvantageSyn']
 
