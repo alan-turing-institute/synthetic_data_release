@@ -1,17 +1,24 @@
 {
   "sensitiveAttributes": {"LENGTH_OF_STAY": "LinReg",
     "RACE": "Classification"},
-  "nIter": 15,
-  "sizeRawT": 1000,
-  "sizeSynT": 1000,
-  "nSynT": 10,
-  "nTargets": 0,
-  "Targets": ["ID26241", "ID31432", "ID27428", "ID29265", "ID14086"],
+  "nIter": 5,
+  "sizeRawT": 5000,
+  "sizeSynT": 5000,
+  "nSynT": 5,
+  "nTargets": 3,
+  "probIn": 0.5,
+  "positive_label": {"RACE": "4"},
+  "prior": true,
+  "prior_values": {"RACE":  {"4":  0.3,
+                             "5":  0.4,
+                             "3":  0.1,
+                             "2":  0.1,
+                             "INVALID": 0.05,
+                             "1":  0.05}},
+  "Targets": ["ID26241", "ID31432", "ID27428"],
   "generativeModels": {
-    "BayesianNet": [[25, 1]],
     "PrivBayes": [[25, 1, 1.0]]
   },
   "sanitisationTechniques": {
-    "SanitiserNHS": [[10, 1, 0.99, 10, [], ["PAT_STATE", "SEX_CODE", "RACE", "ETHNICITY", "PAT_AGE"]]]
   }
 }

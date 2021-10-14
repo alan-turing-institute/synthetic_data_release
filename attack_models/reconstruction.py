@@ -1,6 +1,6 @@
 from os import path
 from pandas.api.types import CategoricalDtype
-from numpy import mean, concatenate, ones, sqrt, zeros, arange
+from numpy import mean, concatenate, ones, sqrt, zeros, arange, argmax, array
 from scipy.stats import norm
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LinearRegression
@@ -239,13 +239,16 @@ class LinRegAttack(AttributeInferenceAttack):
 
 class RandForestAttack(AttributeInferenceAttack):
     """An AttributeInferenceAttack based on a simple Linear Regression model"""
-    def __init__(self, sensitiveAttribute, metadata, quids=None):
+    def __init__(self, sensitiveAttribute, metadata, quids=None, prior=None, prior_values=None):
         super().__init__(RandomForestClassifier(), sensitiveAttribute, metadata, quids)
 
         self.labels = {l:i for i, l in enumerate(self.metadata[self.sensitiveAttribute]['categories'])}
         self.labelsInv = {i:l for l, i in self.labels.items()}
 
         self.scaleFactor = None
+
+        self.prior = prior  # Boolean: Use prior or not?
+        self.prior_values = prior_values  # Dictonary: label_value -> prior_value
 
     def train(self, data):
         """
@@ -269,7 +272,15 @@ class RandForestAttack(AttributeInferenceAttack):
         targetFeatures = self._encode_data(targetAux)
         targetFeaturesScaled = targetFeatures - self.scaleFactor
 
-        guess = self.PredictionModel.predict(targetFeaturesScaled)
+        if self.prior:
+            if self.PredictionModel.n_outputs_ == 1:
+                posterior = self.get_posterior(targetFeaturesScaled)
+                guess = self.PredictionModel.classes_.take(argmax(posterior, axis=1), axis=0)
+            else:
+                raise ValueError(f"Random Forest model should predict only one "
+                                 f"output but predicts {self.PredictionModel.n_outputs_}")
+        else:
+            guess = self.PredictionModel.predict(targetFeaturesScaled)
 
         return self.labelsInv[guess[0]]
 
@@ -289,14 +300,32 @@ class RandForestAttack(AttributeInferenceAttack):
                     pCorrect = 1.
 
                 else:
-                    probs = self.PredictionModel.predict_proba(targetFeaturesScaled).flatten()
+                    if self.prior:
+                        probs = self.get_posterior(targetFeaturesScaled).flatten()
+                    else:
+                        probs = self.PredictionModel.predict_proba(targetFeaturesScaled).flatten()
                     pCorrect = probs[self.labels[targetSensitive]]
 
             except:
-                probs = self.PredictionModel.predict_proba(targetFeaturesScaled).flatten()
+                if self.prior:
+                    probs = self.get_posterior(targetFeaturesScaled).flatten()
+                else:
+                    probs = self.PredictionModel.predict_proba(targetFeaturesScaled).flatten()
                 pCorrect = probs[self.labels[targetSensitive]]
         else:
-            probs = self.PredictionModel.predict_proba(targetFeaturesScaled).flatten()
+            if self.prior:
+                probs = self.get_posterior(targetFeaturesScaled).flatten()
+            else:
+                probs = self.PredictionModel.predict_proba(targetFeaturesScaled).flatten()
             pCorrect = probs[self.labels[targetSensitive]]
 
         return pCorrect
+
+    def get_posterior(self, targetFeaturesScaled):
+        """Calculate posterior from prior and likelihood values"""
+        likelihood = self.PredictionModel.predict_proba(targetFeaturesScaled)
+        posterior = []
+        for cl, lik, in zip(self.PredictionModel.classes_, likelihood[0]):
+            posterior.append(lik * self.prior_values[self.labelsInv[cl]])
+        posterior = array(posterior, ndmin=2)
+        return posterior / posterior.sum()
