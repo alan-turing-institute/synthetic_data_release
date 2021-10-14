@@ -2,13 +2,19 @@
   "sensitiveAttributes": {"hiv": "Classification",
                           "cir": "Classification"},
   "nIter": 15,
-  "sizeRawT": 10000,
-  "sizeSynT": 10000,
+  "sizeRawT": 30000,
+  "sizeSynT": 30000,
   "nSynT": 10,
-  "nTargets": 5,
+  "nTargets": 0,
   "probIn": 0.5,
   "positive_label": {"hiv": "1.0", "cir": "1.0"},
-  "Targets": ["ID83", "ID17546", "ID13903"],
+  "prior": true,
+  "prior_values": {"hiv": {"0.0": 0.5,
+                           "1.0": 0.5},
+                   "cir": {"0.0": 0.5,
+                          "1.0": 0.5}
+  },
+  "Targets": ["ID83", "ID17546", "ID13903", "ID8461", "ID7658", "ID937"],
   "generativeModels": {
     "IndependentHistogram": [[25]],
     "PrivBayes": [[25, 1, 1.0]]

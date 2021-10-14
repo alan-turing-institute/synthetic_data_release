@@ -131,7 +131,8 @@ def main():
             if atype == 'LinReg':
                 attacks[sa] = LinRegAttack(sensitiveAttribute=sa, metadata=metadata)
             elif atype == 'Classification':
-                attacks[sa] = RandForestAttack(sensitiveAttribute=sa, metadata=metadata)
+                attacks[sa] = RandForestAttack(sensitiveAttribute=sa, metadata=metadata,
+                                               prior=runconfig['prior'], prior_values=runconfig['prior_values'][sa])
 
         #### Assess advantage raw
         for sa, Attack in attacks.items():
@@ -226,7 +227,8 @@ def main():
                 if atype == 'LinReg':
                     attacks[sa] = LinRegAttack(sensitiveAttribute=sa, metadata=metadata, quids=San.quids)
                 elif atype == 'Classification':
-                    attacks[sa] = RandForestAttack(sensitiveAttribute=sa, metadata=metadata, quids=San.quids)
+                    attacks[sa] = RandForestAttack(sensitiveAttribute=sa, metadata=metadata, quids=San.quids,
+                                                   prior=runconfig['prior'], prior_values=runconfig['prior_values'][sa])
 
             sanOut = San.sanitise(rawTout)
 
