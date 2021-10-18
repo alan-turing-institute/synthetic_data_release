@@ -63,11 +63,27 @@ def load_results_linkage(dirname):
         advantageSyn = get_mia_advantage(tpSyn, fpSyn)
         advantageRaw = 1
 
-        resAgg.append(gameParams + (tpSyn, fpSyn, advantageSyn, advantageRaw))
+        tpS, tnS, fpS, fnS, \
+        accS, TPrateS, PPVrateS, F1S = \
+            get_rates_mem(gameRes['AttackerGuess'], gameRes['Secret'])
+
+        tpR, tnR, fpR, fnR, \
+        accR, TPrateR, PPVrateR, F1R = None, None, None, None, 1., 1., 1., 1.
+
+        resAgg.append(gameParams + (tpSyn, fpSyn, advantageSyn, advantageRaw,
+                                    tpR, tnR, fpR, fnR,
+                                    tpS, tnS, fpS, fnS,
+                                    accR, TPrateR, PPVrateR, F1R,
+                                    accS, TPrateS, PPVrateS, F1S))
 
     resAgg = DataFrame(resAgg)
 
-    resAgg.columns = ['TargetID','TargetModel', 'FeatureSet', 'Run', 'TPSyn', 'FPSyn', 'AdvantageSyn', 'AdvantageRaw']
+    resAgg.columns = ['TargetID', 'TargetModel', 'FeatureSet', 'Run',
+                      'TPSyn', 'FPSyn', 'AdvantageSyn', 'AdvantageRaw',
+                      'TruePositivesRaw', 'TrueNegativesRaw', 'FalsePositivesRaw', 'FalseNegativesRaw',
+                      'TruePositivesSyn', 'TrueNegativesSyn', 'FalsePositivesSyn', 'FalseNegativesSyn',
+                      'AccuracyRaw', 'TPRateRaw', 'PPVRateRaw', 'F1RateRaw',
+                      'AccuracySyn', 'TPRateSyn', 'PPVRateSyn', 'F1RateSyn']
 
     resAgg['PrivacyGain'] = resAgg['AdvantageRaw'] - resAgg['AdvantageSyn']
 
@@ -134,9 +150,9 @@ def load_results_inference(dirname, dpath, configpath):
             tpOutR, tnOutR, fpOutR, fnOutR, \
             TPrateInR, TPrateOutR, TPrateTotalR, \
             PPVrateInR, PPVrateOutR, PPVrateTotalR, \
-            F1InR, F1OutR, F1TotalR = \
+            F1InR, F1OutR, F1TotalR, AccInR, AccOutR, AccTotalR = \
                 np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, \
-                np.nan, np.nan, np.nan, np.nan, np.nan, np.nan
+                np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan
 
         elif all(game['SensitiveType'].isin([CATEGORICAL, ORDINAL])):
             pCorrectRIn, pCorrectROut = \
@@ -147,8 +163,8 @@ def load_results_inference(dirname, dpath, configpath):
                 tpOutR, tnOutR, fpOutR, fnOutR, \
                 TPrateInR, TPrateOutR, TPrateTotalR, \
                 PPVrateInR, PPVrateOutR, PPVrateTotalR, \
-                F1InR, F1OutR, F1TotalR = \
-                    get_rates(rawRes['AttackerGuess'], rawRes['TargetSecret'],
+                F1InR, F1OutR, F1TotalR, AccInR, AccOutR, AccTotalR = \
+                    get_rates_inf(rawRes['AttackerGuess'], rawRes['TargetSecret'],
                                  rawRes['TargetPresence'],
                                  runconfig["positive_label"][v[0]],
                                  runconfig["probIn"])
@@ -169,9 +185,9 @@ def load_results_inference(dirname, dpath, configpath):
                     tpOutS, tnOutS, fpOutS, fnOutS, \
                     TPrateInS, TPrateOutS, TPrateTotalS, \
                     PPVrateInS, PPVrateOutS, PPVrateTotalS, \
-                    F1InS, F1OutS, F1TotalS = \
+                    F1InS, F1OutS, F1TotalS, AccInS, AccOutS, AccTotalS = \
                         np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, \
-                        np.nan, np.nan, np.nan, np.nan, np.nan, np.nan
+                        np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan
 
                 elif all(gmRes['SensitiveType'].isin([CATEGORICAL, ORDINAL])):
                     pCorrectSIn, pCorrectSOut = \
@@ -182,8 +198,8 @@ def load_results_inference(dirname, dpath, configpath):
                         tpOutS, tnOutS, fpOutS, fnOutS, \
                         TPrateInS, TPrateOutS, TPrateTotalS, \
                         PPVrateInS, PPVrateOutS, PPVrateTotalS, \
-                        F1InS, F1OutS, F1TotalS = \
-                            get_rates(gmRes['AttackerGuess'], gmRes['TargetSecret'],
+                        F1InS, F1OutS, F1TotalS, AccInS, AccOutS, AccTotalS = \
+                            get_rates_inf(gmRes['AttackerGuess'], gmRes['TargetSecret'],
                                          gmRes['TargetPresence'],
                                          runconfig["positive_label"][v[0]],
                                          runconfig["probIn"])
@@ -201,7 +217,8 @@ def load_results_inference(dirname, dpath, configpath):
                                             pSuccessR, pSuccessS,
                                             TPrateInR, TPrateOutR, TPrateTotalR, TPrateInS, TPrateOutS, TPrateTotalS,
                                             PPVrateInR, PPVrateOutR, PPVrateTotalR, PPVrateInS, PPVrateOutS, PPVrateTotalS,
-                                            F1InR, F1OutR, F1TotalR, F1InS, F1OutS, F1TotalS))
+                                            F1InR, F1OutR, F1TotalR, F1InS, F1OutS, F1TotalS,
+                                            AccInR, AccOutR, AccTotalR, AccInS, AccOutS, AccTotalS))
 
 
     resAdv = DataFrame(resAdv)
@@ -215,7 +232,8 @@ def load_results_inference(dirname, dpath, configpath):
                       'ProbSuccessRaw', 'ProbSuccessSyn',
                       'TPRateRawIn', 'TPRateRawOut', 'TPRateRawTotal', 'TPRateSynIn', 'TPRateSynOut', 'TPRateSynTotal',
                       'PPVRateRawIn', 'PPVRateRawOut', 'PPVRateRawTotal', 'PPVRateSynIn', 'PPVRateSynOut', 'PPVRateSynTotal',
-                      'F1RateRawIn', 'F1RateRawOut', 'F1RateRawTotal', 'F1RateSynIn', 'F1RateSynOut', 'F1RateSynTotal']
+                      'F1RateRawIn', 'F1RateRawOut', 'F1RateRawTotal', 'F1RateSynIn', 'F1RateSynOut', 'F1RateSynTotal',
+                      'AccRawIn', 'AccRawOut', 'AccRawTotal', 'AccSynIn', 'AccSynOut', 'AccSynTotal']
 
     resAdv['PrivacyGain'] = resAdv['AdvantageRaw'] - resAdv['AdvantageSyn']
 
