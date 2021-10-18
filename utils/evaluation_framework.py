@@ -86,9 +86,39 @@ def tpfp(predictions, ground_truth, positive):
     return acc, tp, tn, fp, fn
 
 
-def get_rates(guesses, labels, targetPresence, positive_label, probIn):
+def get_rates_mem(guesses, labels):
     """Calculate true and total positives, false positives, true positive rate
-    (recall), positive predictive value (precision) and F1 rate for classification task"""
+    (recall), positive predictive value (precision) and F1 rate for
+    membership inference classification task"""
+
+    acc, tp, tn, fp, fn = tpfp(guesses, labels, LABEL_IN)
+
+    # True positive rate (recall)
+    if tp + fn > 0:
+        TPrate = tp / (tp + fn)
+    else:
+        TPrate = nan
+
+    # Positive predictive value (precision)
+    if tp + fp > 0:
+        PPVrate = tp / (tp + fp)
+    else:
+        PPVrate = nan
+
+    # F1 rate
+    if TPrate + PPVrate > 0:
+        F1 = 2 * (TPrate * PPVrate) / (TPrate + PPVrate)
+    else:
+        F1 = nan
+
+    return tp, tn, fp, fn, \
+           acc, TPrate, PPVrate, F1
+
+
+def get_rates_inf(guesses, labels, targetPresence, positive_label, probIn):
+    """Calculate true and total positives, false positives, true positive rate
+    (recall), positive predictive value (precision) and F1 rate
+    for attribute inference classification task"""
 
     # if label is in
     idxIn = where(targetPresence == LABEL_IN)[0]
@@ -143,4 +173,5 @@ def get_rates(guesses, labels, targetPresence, positive_label, probIn):
            tpOut, tnOut, fpOut, fnOut, \
            TPrateIn, TPrateOut, TPrateIn * probIn + TPrateOut * (1 - probIn), \
            PPVrateIn, PPVrateOut, PPVrateIn * probIn + PPVrateOut * (1 - probIn), \
-           F1In, F1Out, F1In * probIn + F1Out * (1 - probIn)
+           F1In, F1Out, F1In * probIn + F1Out * (1 - probIn), \
+           accIn, accOut, accIn * probIn + accOut * (1 - probIn)

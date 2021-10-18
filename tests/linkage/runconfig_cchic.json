@@ -1,16 +1,19 @@
 {
-  "nIter": 4,
+  "nIter": 5,
   "sizeRawA": 5000,
-  "nSynA": 3,
-  "nShadows": 3,
-  "sizeRawT": 1000,
-  "sizeSynT": 1000,
-  "nSynT": 2,
+  "nSynA": 5,
+  "nShadows": 5,
+  "sizeRawT": 20000,
+  "sizeSynT": 20000,
+  "nSynT": 5,
   "nTargets": 0,
+  "probIn": 0.5,
   "Targets": ["ID83", "ID17546", "ID13903"],
   "generativeModels": {
+    "IndependentHistogram": [[25]],
     "PrivBayes": [[25, 1, 1.0]]
   },
   "sanitisationTechniques": {
+    "SanitiserNHS": [[10, 1, 0.99, 5, [], ["sex", "eth", "wad", "had", "mad"]]]
   }
 }
