@@ -18,6 +18,7 @@ from generative_models.data_synthesiser import BayesianNet, PrivBayes, Independe
 from generative_models.ctgan import CTGAN
 from generative_models.pate_gan import PATEGAN
 from predictive_models.predictive_model import RandForestClassTask, LogRegClassTask, LinRegTask
+from dython.nominal import associations
 
 from warnings import simplefilter
 simplefilter('ignore', category=FutureWarning)
@@ -54,6 +55,9 @@ def main():
 
     print(f'Loaded data {dname}:')
     print(rawPop.info())
+
+    # make list of categorical/ordinal variables
+    categorical_variables = [v['name'] for v in metadata['columns'] if v['type'] in ['Categorical', 'Ordinal']]
 
     # Make sure outdir exists
     if not path.isdir(args.outdir):
@@ -142,13 +146,18 @@ def main():
     ##################################
     resultsTargetUtility = {ut.__name__: {gm.__name__: {} for gm in gmList + sanList} for ut in utilityTasks}
     resultsAggUtility = {ut.__name__: {gm.__name__: {'TargetID': [],
-                                                     'Accuracy': []} for gm in gmList + sanList} for ut in utilityTasks}
+                                                     'Accuracy': [],
+                                                     'VariableMeasures': {'Means': [], 'Medians': [],
+                                                                          'Frequencies': [], 'Correlations': []}}
+                                       for gm in gmList + sanList} for ut in utilityTasks}
 
     # Add entry for raw
     for ut in utilityTasks:
         resultsTargetUtility[ut.__name__]['Raw'] = {}
         resultsAggUtility[ut.__name__]['Raw'] = {'TargetID': [],
-                                                 'Accuracy': []}
+                                                 'Accuracy': [],
+                                                 'VariableMeasures': {'Means': [], 'Medians': [],
+                                                                      'Frequencies': [], 'Correlations': []}}
 
     print('\n---- Start the game ----')
     for nr in range(runconfig['nIter']):
@@ -176,6 +185,30 @@ def main():
 
             resultsAggUtility[ut.__name__]['Raw']['TargetID'].append('OUT')
             resultsAggUtility[ut.__name__]['Raw']['Accuracy'].append(mean(predErrorAggr))
+            resultsAggUtility[ut.__name__]['Raw']['VariableMeasures']["Means"].append(
+                {
+                i['name']: rawTout[i['name']].mean()
+                for i in metadata["columns"]
+                if i['name'] not in categorical_variables
+                }
+            )
+            resultsAggUtility[ut.__name__]['Raw']['VariableMeasures']["Medians"].append(
+                {
+                i['name']: rawTout[i['name']].median()
+                for i in metadata["columns"]
+                if i['name'] not in categorical_variables
+                }
+            )
+            resultsAggUtility[ut.__name__]['Raw']['VariableMeasures']["Frequencies"].append(
+                {
+                i['name']: rawTout[i['name']].value_counts(normalize=True).sort_index(ascending=True).tolist()
+                for i in metadata["columns"]
+                if i['name'] in categorical_variables
+                }
+            )
+            # resultsAggUtility[ut.__name__]['Raw']['VariableMeasures']["Correlations"].append(
+            #     associations(rawTout, nominal_columns=categorical_variables)
+            # )
 
         # Get utility from raw with each target
         for tid in targetIDs:
@@ -197,6 +230,30 @@ def main():
 
                 resultsAggUtility[ut.__name__]['Raw']['TargetID'].append(tid)
                 resultsAggUtility[ut.__name__]['Raw']['Accuracy'].append(mean(predErrorAggr))
+                resultsAggUtility[ut.__name__]['Raw']['VariableMeasures']["Means"].append(
+                    {
+                        i['name']: rawIn[i['name']].mean()
+                        for i in metadata["columns"]
+                        if i['name'] not in categorical_variables
+                    }
+                )
+                resultsAggUtility[ut.__name__]['Raw']['VariableMeasures']["Medians"].append(
+                    {
+                        i['name']: rawIn[i['name']].median()
+                        for i in metadata["columns"]
+                        if i['name'] not in categorical_variables
+                    }
+                )
+                resultsAggUtility[ut.__name__]['Raw']['VariableMeasures']["Frequencies"].append(
+                    {
+                        i['name']: rawIn[i['name']].value_counts(normalize=True).sort_index(ascending=True).tolist()
+                        for i in metadata["columns"]
+                        if i['name'] in categorical_variables
+                    }
+                )
+                # resultsAggUtility[ut.__name__]['Raw']['VariableMeasures']["Correlations"].append(
+                #     associations(rawIn, nominal_columns=categorical_variables)
+                # )
 
         LOGGER.info('Finished: Utility evaluation on Raw.')
 
@@ -223,6 +280,30 @@ def main():
 
                 resultsAggUtility[ut.__name__][GenModel.__name__]['TargetID'].append('OUT')
                 resultsAggUtility[ut.__name__][GenModel.__name__]['Accuracy'].append(mean(predErrorAggr))
+                resultsAggUtility[ut.__name__][GenModel.__name__]['VariableMeasures']["Means"].append(
+                    {
+                        i['name']: syn[i['name']].mean()
+                        for i in metadata["columns"]
+                        if i['name'] not in categorical_variables
+                    }
+                )
+                resultsAggUtility[ut.__name__][GenModel.__name__]['VariableMeasures']["Medians"].append(
+                    {
+                        i['name']: syn[i['name']].median()
+                        for i in metadata["columns"]
+                        if i['name'] not in categorical_variables
+                    }
+                )
+                resultsAggUtility[ut.__name__][GenModel.__name__]['VariableMeasures']["Frequencies"].append(
+                    {
+                        i['name']: syn[i['name']].value_counts(normalize=True).sort_index(ascending=True).tolist()
+                        for i in metadata["columns"]
+                        if i['name'] in categorical_variables
+                    }
+                )
+                # resultsAggUtility[ut.__name__][GenModel.__name__]['VariableMeasures']["Correlations"].append(
+                #     associations(syn, nominal_columns=categorical_variables)
+                # )
 
             for tid in targetIDs:
                 LOGGER.info(f'Target: {tid}')
@@ -248,6 +329,30 @@ def main():
 
                     resultsAggUtility[ut.__name__][GenModel.__name__]['TargetID'].append(tid)
                     resultsAggUtility[ut.__name__][GenModel.__name__]['Accuracy'].append(mean(predErrorAggr))
+                    resultsAggUtility[ut.__name__][GenModel.__name__]['VariableMeasures']["Means"].append(
+                        {
+                            i['name']: syn[i['name']].mean()
+                            for i in metadata["columns"]
+                            if i['name'] not in categorical_variables
+                        }
+                    )
+                    resultsAggUtility[ut.__name__][GenModel.__name__]['VariableMeasures']["Medians"].append(
+                        {
+                            i['name']: syn[i['name']].median()
+                            for i in metadata["columns"]
+                            if i['name'] not in categorical_variables
+                        }
+                    )
+                    resultsAggUtility[ut.__name__][GenModel.__name__]['VariableMeasures']["Frequencies"].append(
+                        {
+                            i['name']: syn[i['name']].value_counts(normalize=True).sort_index(ascending=True).tolist()
+                            for i in metadata["columns"]
+                            if i['name'] in categorical_variables
+                        }
+                    )
+                    # resultsAggUtility[ut.__name__][GenModel.__name__]['VariableMeasures']["Correlations"].append(
+                    #     associations(syn, nominal_columns=categorical_variables)
+                    # )
 
             del synTwithoutTarget, synTwithTarget
 
@@ -274,6 +379,30 @@ def main():
 
                 resultsAggUtility[ut.__name__][San.__name__]['TargetID'].append('OUT')
                 resultsAggUtility[ut.__name__][San.__name__]['Accuracy'].append(mean(predErrorAggr))
+                resultsAggUtility[ut.__name__][San.__name__]['VariableMeasures']["Means"].append(
+                    {
+                        i['name']: sanOut[i['name']].mean()
+                        for i in metadata["columns"]
+                        if i['name'] not in categorical_variables
+                    }
+                )
+                resultsAggUtility[ut.__name__][San.__name__]['VariableMeasures']["Medians"].append(
+                    {
+                        i['name']: sanOut[i['name']].median()
+                        for i in metadata["columns"]
+                        if i['name'] not in categorical_variables
+                    }
+                )
+                resultsAggUtility[ut.__name__][San.__name__]['VariableMeasures']["Frequencies"].append(
+                    {
+                        i['name']: sanOut[i['name']].value_counts(normalize=True).sort_index(ascending=True).tolist()
+                        for i in metadata["columns"]
+                        if i['name'] in categorical_variables
+                    }
+                )
+                # resultsAggUtility[ut.__name__][San.__name__]['VariableMeasures']["Correlations"].append(
+                #     associations(sanOut, nominal_columns=categorical_variables)
+                # )
 
             for tid in targetIDs:
                 LOGGER.info(f'Target: {tid}')
@@ -297,6 +426,30 @@ def main():
 
                     resultsAggUtility[ut.__name__][San.__name__]['TargetID'].append(tid)
                     resultsAggUtility[ut.__name__][San.__name__]['Accuracy'].append(mean(predErrorAggr))
+                    resultsAggUtility[ut.__name__][San.__name__]['VariableMeasures']["Means"].append(
+                        {
+                            i['name']: sanIn[i['name']].mean()
+                            for i in metadata["columns"]
+                            if i['name'] not in categorical_variables
+                        }
+                    )
+                    resultsAggUtility[ut.__name__][San.__name__]['VariableMeasures']["Medians"].append(
+                        {
+                            i['name']: sanIn[i['name']].median()
+                            for i in metadata["columns"]
+                            if i['name'] not in categorical_variables
+                        }
+                    )
+                    resultsAggUtility[ut.__name__][San.__name__]['VariableMeasures']["Frequencies"].append(
+                        {
+                            i['name']: sanIn[i['name']].value_counts(normalize=True).sort_index(ascending=True).tolist()
+                            for i in metadata["columns"]
+                            if i['name'] in categorical_variables
+                        }
+                    )
+                    # resultsAggUtility[ut.__name__][San.__name__]['VariableMeasures']["Correlations"].append(
+                    #     associations(sanIn, nominal_columns=categorical_variables)
+                    # )
 
             del sanOut, sanIn
 
