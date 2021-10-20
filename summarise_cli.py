@@ -474,7 +474,7 @@ def main():
             Frequencies_SDs[k] = np.nan
 
     print(f"Variable frequencies means:\n{Frequencies_Means}")
-    print(f"Variable frequencies means:\n{Frequencies_SDs}")
+    print(f"Variable frequencies SD:\n{Frequencies_SDs}")
 
     #{k: np.std((v.values), axis=0) for k, v in Frequencies.items()}
     #np.std(tuple(df.iloc[0:4, 30].apply(np.array)), axis=0)
@@ -484,6 +484,10 @@ def main():
     Accuracy = df.groupby(['Dataset', 'TargetModel', 'PredictionModel', 'LabelVar'])['Accuracy']. \
                agg({'Score': {'Mean': np.mean, 'SD': np.std}})
     print(f"Classification accuracy:\n{Accuracy}")
+
+    F1 = df.groupby(['Dataset', 'TargetModel', 'PredictionModel', 'LabelVar'])['F1']. \
+        agg({'Score': {'Mean': np.mean, 'SD': np.std}})
+    print(f"Classification F1:\n{F1}")
 
 
 if __name__ == "__main__":

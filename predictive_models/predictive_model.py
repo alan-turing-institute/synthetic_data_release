@@ -3,6 +3,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LinearRegression
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import f1_score
 from pandas import DataFrame
 from numpy import empty, true_divide, zeros, arange
 
@@ -176,6 +177,16 @@ class ClassificationTask(PredictiveModel):
         labelsPred = self.Distinguisher.predict(features)
 
         return [int(l == p) for l, p in zip(labelsTrue, labelsPred)]
+
+    def f1(self, data):
+        if not isinstance(data, self.datatype):
+            raise ValueError(f"Model expects input as {self.datatype} but got {type(data)}")
+
+        features = self._encode_data(data.drop(self.labelCol, axis=1))
+        labelsTrue = data[self.labelCol].apply(lambda x: self.labels[x]).values
+        labelsPred = self.Distinguisher.predict(features)
+
+        return f1_score(labelsTrue, labelsPred, average='macro')
 
     def _get_accuracy(self, trueLabels, predLabels):
         return sum([g == l for g, l in zip(trueLabels, predLabels)])/len(trueLabels)

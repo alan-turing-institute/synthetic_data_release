@@ -1,10 +1,10 @@
 {
   "sensitiveAttributes": {"hiv": "Classification",
                           "cir": "Classification"},
-  "nIter": 15,
-  "sizeRawT": 30000,
-  "sizeSynT": 30000,
-  "nSynT": 10,
+  "nIter": 8,
+  "sizeRawT": 20000,
+  "sizeSynT": 20000,
+  "nSynT": 4,
   "nTargets": 0,
   "probIn": 0.5,
   "positive_label": {"hiv": "1.0", "cir": "1.0"},
@@ -14,10 +14,12 @@
                    "cir": {"0.0": 0.5,
                           "1.0": 0.5}
   },
-  "Targets": ["ID83", "ID17546", "ID13903", "ID8461", "ID7658", "ID937"],
+  "Targets": ["ID83", "ID16365", "ID35969", "ID17546", "ID13903", "ID8461", "ID725"],
   "generativeModels": {
     "IndependentHistogram": [[25]],
-    "PrivBayes": [[25, 1, 1.0]]
+    "PrivBayes": [[25, 2, 0.01], [25, 2, 0.1], [25, 2, 10.0]]
   },
-  "sanitisationTechniques": {}
+  "sanitisationTechniques": {
+    "SanitiserNHS": [[10, 1, 0.99, 5, [], ["sex", "eth", "wad", "had", "mad"]]]
+  }
 }

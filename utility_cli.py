@@ -147,6 +147,7 @@ def main():
     resultsTargetUtility = {ut.__name__: {gm.__name__: {} for gm in gmList + sanList} for ut in utilityTasks}
     resultsAggUtility = {ut.__name__: {gm.__name__: {'TargetID': [],
                                                      'Accuracy': [],
+                                                     'F1': [],
                                                      'VariableMeasures': {'Means': [], 'Medians': [],
                                                                           'Frequencies': [], 'Correlations': []}}
                                        for gm in gmList + sanList} for ut in utilityTasks}
@@ -156,6 +157,7 @@ def main():
         resultsTargetUtility[ut.__name__]['Raw'] = {}
         resultsAggUtility[ut.__name__]['Raw'] = {'TargetID': [],
                                                  'Accuracy': [],
+                                                 'F1': [],
                                                  'VariableMeasures': {'Means': [], 'Medians': [],
                                                                       'Frequencies': [], 'Correlations': []}}
 
@@ -173,10 +175,12 @@ def main():
 
             predErrorTargets = []
             predErrorAggr = []
+            predF1Aggr = []
             for _ in range(runconfig['nSynT']):
                 ut.train(rawTout)
                 predErrorTargets.append(ut.evaluate(testRecords))
                 predErrorAggr.append(ut.evaluate(rawTest))
+                predF1Aggr.append(ut.f1(rawTest))
 
             resultsTargetUtility[ut.__name__]['Raw'][nr]['OUT'] = {
                 'TestRecordID': testRecordIDs,
@@ -185,6 +189,7 @@ def main():
 
             resultsAggUtility[ut.__name__]['Raw']['TargetID'].append('OUT')
             resultsAggUtility[ut.__name__]['Raw']['Accuracy'].append(mean(predErrorAggr))
+            resultsAggUtility[ut.__name__]['Raw']['F1'].append(mean(predF1Aggr))
             resultsAggUtility[ut.__name__]['Raw']['VariableMeasures']["Means"].append(
                 {
                 i['name']: rawTout[i['name']].mean()
@@ -218,10 +223,12 @@ def main():
             for ut in utilityTasks:
                 predErrorTargets = []
                 predErrorAggr = []
+                predF1Aggr = []
                 for _ in range(runconfig['nSynT']):
                     ut.train(rawIn)
                     predErrorTargets.append(ut.evaluate(testRecords))
                     predErrorAggr.append(ut.evaluate(rawTest))
+                    predF1Aggr.append(ut.f1(rawTest))
 
                 resultsTargetUtility[ut.__name__]['Raw'][nr][tid] = {
                     'TestRecordID': testRecordIDs,
@@ -230,6 +237,7 @@ def main():
 
                 resultsAggUtility[ut.__name__]['Raw']['TargetID'].append(tid)
                 resultsAggUtility[ut.__name__]['Raw']['Accuracy'].append(mean(predErrorAggr))
+                resultsAggUtility[ut.__name__]['Raw']['F1'].append(mean(predF1Aggr))
                 resultsAggUtility[ut.__name__]['Raw']['VariableMeasures']["Means"].append(
                     {
                         i['name']: rawIn[i['name']].mean()
@@ -268,10 +276,12 @@ def main():
 
                 predErrorTargets = []
                 predErrorAggr = []
+                predF1Aggr = []
                 for syn in synTwithoutTarget:
                     ut.train(syn)
                     predErrorTargets.append(ut.evaluate(testRecords))
                     predErrorAggr.append(ut.evaluate(rawTest))
+                    predF1Aggr.append(ut.f1(rawTest))
 
                 resultsTargetUtility[ut.__name__][GenModel.__name__][nr]['OUT'] = {
                     'TestRecordID': testRecordIDs,
@@ -280,6 +290,7 @@ def main():
 
                 resultsAggUtility[ut.__name__][GenModel.__name__]['TargetID'].append('OUT')
                 resultsAggUtility[ut.__name__][GenModel.__name__]['Accuracy'].append(mean(predErrorAggr))
+                resultsAggUtility[ut.__name__][GenModel.__name__]['F1'].append(mean(predF1Aggr))
                 resultsAggUtility[ut.__name__][GenModel.__name__]['VariableMeasures']["Means"].append(
                     {
                         i['name']: syn[i['name']].mean()
@@ -317,10 +328,12 @@ def main():
                 for ut in utilityTasks:
                     predErrorTargets = []
                     predErrorAggr = []
+                    predF1Aggr = []
                     for syn in synTwithTarget:
                         ut.train(syn)
                         predErrorTargets.append(ut.evaluate(testRecords))
                         predErrorAggr.append(ut.evaluate(rawTest))
+                        predF1Aggr.append(ut.f1(rawTest))
 
                     resultsTargetUtility[ut.__name__][GenModel.__name__][nr][tid] = {
                         'TestRecordID': testRecordIDs,
@@ -329,6 +342,7 @@ def main():
 
                     resultsAggUtility[ut.__name__][GenModel.__name__]['TargetID'].append(tid)
                     resultsAggUtility[ut.__name__][GenModel.__name__]['Accuracy'].append(mean(predErrorAggr))
+                    resultsAggUtility[ut.__name__][GenModel.__name__]['F1'].append(mean(predF1Aggr))
                     resultsAggUtility[ut.__name__][GenModel.__name__]['VariableMeasures']["Means"].append(
                         {
                             i['name']: syn[i['name']].mean()
@@ -367,10 +381,12 @@ def main():
 
                 predErrorTargets = []
                 predErrorAggr = []
+                predF1Aggr = []
                 for _ in range(runconfig['nSynT']):
                     ut.train(sanOut)
                     predErrorTargets.append(ut.evaluate(testRecords))
                     predErrorAggr.append(ut.evaluate(rawTest))
+                    predF1Aggr.append(ut.f1(rawTest))
 
                 resultsTargetUtility[ut.__name__][San.__name__][nr]['OUT'] = {
                     'TestRecordID': testRecordIDs,
@@ -379,6 +395,7 @@ def main():
 
                 resultsAggUtility[ut.__name__][San.__name__]['TargetID'].append('OUT')
                 resultsAggUtility[ut.__name__][San.__name__]['Accuracy'].append(mean(predErrorAggr))
+                resultsAggUtility[ut.__name__][San.__name__]['F1'].append(mean(predF1Aggr))
                 resultsAggUtility[ut.__name__][San.__name__]['VariableMeasures']["Means"].append(
                     {
                         i['name']: sanOut[i['name']].mean()
@@ -414,10 +431,12 @@ def main():
                 for ut in utilityTasks:
                     predErrorTargets = []
                     predErrorAggr = []
+                    predF1Aggr = []
                     for _ in range(runconfig['nSynT']):
                         ut.train(sanIn)
                         predErrorTargets.append(ut.evaluate(testRecords))
                         predErrorAggr.append(ut.evaluate(rawTest))
+                        predF1Aggr.append(ut.f1(rawTest))
 
                     resultsTargetUtility[ut.__name__][San.__name__][nr][tid] = {
                         'TestRecordID': testRecordIDs,
@@ -426,6 +445,7 @@ def main():
 
                     resultsAggUtility[ut.__name__][San.__name__]['TargetID'].append(tid)
                     resultsAggUtility[ut.__name__][San.__name__]['Accuracy'].append(mean(predErrorAggr))
+                    resultsAggUtility[ut.__name__][San.__name__]['F1'].append(mean(predF1Aggr))
                     resultsAggUtility[ut.__name__][San.__name__]['VariableMeasures']["Means"].append(
                         {
                             i['name']: sanIn[i['name']].mean()

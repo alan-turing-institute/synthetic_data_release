@@ -1,18 +1,20 @@
 {
-  "nIter": 4,
-  "sizeRawT": 1000,
-  "sizeSynT": 1000,
-  "nSynT": 3,
-  "nTargets": 5,
+  "nIter": 8,
+  "sizeRawT": 20000,
+  "sizeSynT": 20000,
+  "nSynT": 4,
+  "nTargets": 1,
   "Targets": [],
   "TestRecords": [],
   "generativeModels": {
-    "PrivBayes": [[25, 1, 1.0]]
+    "IndependentHistogram": [[25]],
+    "PrivBayes": [[25, 2, 0.01], [25, 2, 0.1], [25, 2, 10.0]]
   },
   "sanitisationTechniques": {
+    "SanitiserNHS": [[10, 1, 0.99, 5, [], ["sex", "eth", "wad", "had", "mad"]]]
   },
   "utilityTasks": {
-    "RandForestClass": [["hiv"]]
+    "RandForestClass": [["hiv"], ["cir"], ["das"], ["eth"]]
   },
   "train_fraction": 0.7
 }
