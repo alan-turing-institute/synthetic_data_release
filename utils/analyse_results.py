@@ -1,5 +1,6 @@
 import json
 import matplotlib.pyplot as plt
+import pandas as pd
 import seaborn as sns
 
 from glob import glob
@@ -305,11 +306,17 @@ def load_results_utility(dirname):
                 labelVar = ''.join([s.capitalize() for s in labelVar.split('-')])
 
             for gm, gmres in utres.items():
-                resDF = DataFrame(gmres)
+                resDF = DataFrame({k: i for k, i in gmres.items() if k != 'VariableMeasures'})
                 resDF['PredictionModel'] = model
                 resDF['LabelVar'] = labelVar
                 resDF['TargetModel'] = gm
                 resDF['Dataset'] = dataset
+                meansDF = pd.Series(gmres['VariableMeasures']['Means']).apply(pd.Series).add_prefix('Mean_')
+                resDF = pd.concat([resDF, meansDF], axis=1)
+                mediansDF = pd.Series(gmres['VariableMeasures']['Medians']).apply(pd.Series).add_prefix('Median_')
+                resDF = pd.concat([resDF, mediansDF], axis=1)
+                frequenciesDF = pd.Series(gmres['VariableMeasures']['Frequencies']).apply(pd.Series).add_prefix('Freq_')
+                resDF = pd.concat([resDF, frequenciesDF], axis=1)
 
                 resList.append(resDF)
 

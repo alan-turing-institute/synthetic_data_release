@@ -419,6 +419,71 @@ def main():
     F1RateSyn2 = df.groupby(['TargetModel', 'FeatureSet'])['F1RateSyn']. \
         agg({'Score': {'Mean': np.mean, 'SD': np.std}})
     print(f'F1 rate ALL (2)\n{F1RateSyn2}')
+    
+    
+    
+    
+    
+    # Utility
+    print("Utility results")
+
+    df = load_results_utility("tests/utility")[1]
+
+    # All methods (Synthetic, raw, sanitised)
+
+    Means = {var[5:]: df.groupby(['Dataset', 'TargetModel', 'PredictionModel', 'LabelVar'])[var].
+             agg({'Score': {'Mean': np.mean, 'SD': np.std}})
+             for var in [c for c in df.columns if c.startswith('Mean_')]}
+    print(f"Variable means:\n{Means}")
+    Medians = {var[7:]: df.groupby(['Dataset', 'TargetModel', 'PredictionModel', 'LabelVar'])[var].
+               agg({'Score': {'Mean': np.mean, 'SD': np.std}})
+               for var in [c for c in df.columns if c.startswith('Median_')]}
+    print(f"Variable medians:\n{Medians}")
+    for c in df.columns:
+        if c.startswith('Freq_'):
+            df[c] = df[c].apply(np.array)
+    #df.loc[:,[c for c in df.columns if c.startswith('Freq_')]].apply(np.array) #= np.array(df[[c for c in df.columns if c.startswith('Freq_')]])
+    Frequencies_Means = {
+        var[5:]: df.groupby(['Dataset', 'TargetModel', 'PredictionModel', 'LabelVar'])[var].apply(np.array)
+        for var in [c for c in df.columns if c.startswith('Freq_')]}
+    Frequencies_SDs = {
+        var[5:]: df.groupby(['Dataset', 'TargetModel', 'PredictionModel', 'LabelVar'])[var].apply(np.array)
+        for var in [c for c in df.columns if c.startswith('Freq_')]}
+
+    def custom_mean(v):
+        try:
+            return np.mean(v)
+        except ValueError:
+            return np.nan
+
+    def custom_std(v):
+        try:
+            return np.std(v)
+        except ValueError:
+            return np.nan
+
+    for k in Frequencies_Means.keys():
+        try:
+            Frequencies_Means[k] = Frequencies_Means[k].apply(custom_mean)
+        except ValueError:
+            Frequencies_Means[k] = np.nan
+    for k in Frequencies_SDs.keys():
+        try:
+            Frequencies_SDs[k] = Frequencies_SDs[k].apply(custom_std)
+        except ValueError:
+            Frequencies_SDs[k] = np.nan
+
+    print(f"Variable frequencies means:\n{Frequencies_Means}")
+    print(f"Variable frequencies means:\n{Frequencies_SDs}")
+
+    #{k: np.std((v.values), axis=0) for k, v in Frequencies.items()}
+    #np.std(tuple(df.iloc[0:4, 30].apply(np.array)), axis=0)
+    #np.std(tuple(df.iloc[0:4, 30].apply(np.array)), axis=0)
+    #np.std(tuple(df.iloc[0:4, 30].apply(np.array)), axis=0)
+
+    Accuracy = df.groupby(['Dataset', 'TargetModel', 'PredictionModel', 'LabelVar'])['Accuracy']. \
+               agg({'Score': {'Mean': np.mean, 'SD': np.std}})
+    print(f"Classification accuracy:\n{Accuracy}")
 
 
 if __name__ == "__main__":
