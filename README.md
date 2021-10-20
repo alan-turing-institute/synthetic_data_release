@@ -96,5 +96,5 @@ The results file produced after successfully running the script can be parsed wi
 In order to print a summary of all the attacks you ran for the CCHIC dataset, run the following:
 
 ```
-python summarise_cli.py -D data/cchic_cleaned -RC tests/inference/runconfig_cchic
+python summarise_cli.py -D data/cchic_cleaned -RCI tests/inference/runconfig_cchic -RCL tests/linkage/runconfig_cchic
 ```
