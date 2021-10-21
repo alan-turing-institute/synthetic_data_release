@@ -180,7 +180,11 @@ def main():
                 ut.train(rawTout)
                 predErrorTargets.append(ut.evaluate(testRecords))
                 predErrorAggr.append(ut.evaluate(rawTest))
-                predF1Aggr.append(ut.f1(rawTest, positive_label=runconfig["positive_label"][ut.labelCol]))
+                pl = runconfig.get("positive_label")
+                if pl is not None:
+                    predF1Aggr.append(ut.f1(rawTest, positive_label=pl[ut.labelCol]))
+                else:
+                    predF1Aggr.append(ut.f1(rawTest))
 
             resultsTargetUtility[ut.__name__]['Raw'][nr]['OUT'] = {
                 'TestRecordID': testRecordIDs,
@@ -228,7 +232,11 @@ def main():
                     ut.train(rawIn)
                     predErrorTargets.append(ut.evaluate(testRecords))
                     predErrorAggr.append(ut.evaluate(rawTest))
-                    predF1Aggr.append(ut.f1(rawTest, positive_label=runconfig["positive_label"][ut.labelCol]))
+                    pl = runconfig.get("positive_label")
+                    if pl is not None:
+                        predF1Aggr.append(ut.f1(rawTest, positive_label=pl[ut.labelCol]))
+                    else:
+                        predF1Aggr.append(ut.f1(rawTest))
 
                 resultsTargetUtility[ut.__name__]['Raw'][nr][tid] = {
                     'TestRecordID': testRecordIDs,
@@ -281,7 +289,11 @@ def main():
                     ut.train(syn)
                     predErrorTargets.append(ut.evaluate(testRecords))
                     predErrorAggr.append(ut.evaluate(rawTest))
-                    predF1Aggr.append(ut.f1(rawTest, positive_label=runconfig["positive_label"][ut.labelCol]))
+                    pl = runconfig.get("positive_label")
+                    if pl is not None:
+                        predF1Aggr.append(ut.f1(rawTest, positive_label=pl[ut.labelCol]))
+                    else:
+                        predF1Aggr.append(ut.f1(rawTest))
 
                 resultsTargetUtility[ut.__name__][GenModel.__name__][nr]['OUT'] = {
                     'TestRecordID': testRecordIDs,
@@ -333,7 +345,11 @@ def main():
                         ut.train(syn)
                         predErrorTargets.append(ut.evaluate(testRecords))
                         predErrorAggr.append(ut.evaluate(rawTest))
-                        predF1Aggr.append(ut.f1(rawTest, positive_label=runconfig["positive_label"][ut.labelCol]))
+                        pl = runconfig.get("positive_label")
+                        if pl is not None:
+                            predF1Aggr.append(ut.f1(rawTest, positive_label=pl[ut.labelCol]))
+                        else:
+                            predF1Aggr.append(ut.f1(rawTest))
 
                     resultsTargetUtility[ut.__name__][GenModel.__name__][nr][tid] = {
                         'TestRecordID': testRecordIDs,
@@ -386,7 +402,11 @@ def main():
                     ut.train(sanOut)
                     predErrorTargets.append(ut.evaluate(testRecords))
                     predErrorAggr.append(ut.evaluate(rawTest))
-                    predF1Aggr.append(ut.f1(rawTest, positive_label=runconfig["positive_label"][ut.labelCol]))
+                    pl = runconfig.get("positive_label")
+                    if pl is not None:
+                        predF1Aggr.append(ut.f1(rawTest, positive_label=pl[ut.labelCol]))
+                    else:
+                        predF1Aggr.append(ut.f1(rawTest))
 
                 resultsTargetUtility[ut.__name__][San.__name__][nr]['OUT'] = {
                     'TestRecordID': testRecordIDs,
@@ -436,7 +456,11 @@ def main():
                         ut.train(sanIn)
                         predErrorTargets.append(ut.evaluate(testRecords))
                         predErrorAggr.append(ut.evaluate(rawTest))
-                        predF1Aggr.append(ut.f1(rawTest, positive_label=runconfig["positive_label"][ut.labelCol]))
+                        pl = runconfig.get("positive_label")
+                        if pl is not None:
+                            predF1Aggr.append(ut.f1(rawTest, positive_label=pl[ut.labelCol]))
+                        else:
+                            predF1Aggr.append(ut.f1(rawTest))
 
                     resultsTargetUtility[ut.__name__][San.__name__][nr][tid] = {
                         'TestRecordID': testRecordIDs,
