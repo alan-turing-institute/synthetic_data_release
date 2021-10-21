@@ -182,7 +182,7 @@ def main():
                 predErrorAggr.append(ut.evaluate(rawTest))
                 pl = runconfig.get("positive_label")
                 if pl is not None:
-                    predF1Aggr.append(ut.f1(rawTest, positive_label=pl[ut.labelCol]))
+                    predF1Aggr.append(ut.f1(rawTest, positive_label=pl.get(ut.labelCol)))
                 else:
                     predF1Aggr.append(ut.f1(rawTest))
 
@@ -231,7 +231,7 @@ def main():
                     predErrorAggr.append(ut.evaluate(rawTest))
                     pl = runconfig.get("positive_label")
                     if pl is not None:
-                        predF1Aggr.append(ut.f1(rawTest, positive_label=pl[ut.labelCol]))
+                        predF1Aggr.append(ut.f1(rawTest, positive_label=pl.get(ut.labelCol)))
                     else:
                         predF1Aggr.append(ut.f1(rawTest))
 
@@ -285,7 +285,7 @@ def main():
                     predErrorAggr.append(ut.evaluate(rawTest))
                     pl = runconfig.get("positive_label")
                     if pl is not None:
-                        predF1Aggr.append(ut.f1(rawTest, positive_label=pl[ut.labelCol]))
+                        predF1Aggr.append(ut.f1(rawTest, positive_label=pl.get(ut.labelCol)))
                     else:
                         predF1Aggr.append(ut.f1(rawTest))
 
@@ -338,7 +338,7 @@ def main():
                         predErrorAggr.append(ut.evaluate(rawTest))
                         pl = runconfig.get("positive_label")
                         if pl is not None:
-                            predF1Aggr.append(ut.f1(rawTest, positive_label=pl[ut.labelCol]))
+                            predF1Aggr.append(ut.f1(rawTest, positive_label=pl.get(ut.labelCol)))
                         else:
                             predF1Aggr.append(ut.f1(rawTest))
 
@@ -392,7 +392,7 @@ def main():
                     predErrorAggr.append(ut.evaluate(rawTest))
                     pl = runconfig.get("positive_label")
                     if pl is not None:
-                        predF1Aggr.append(ut.f1(rawTest, positive_label=pl[ut.labelCol]))
+                        predF1Aggr.append(ut.f1(rawTest, positive_label=pl.get(ut.labelCol)))
                     else:
                         predF1Aggr.append(ut.f1(rawTest))
 
@@ -443,7 +443,7 @@ def main():
                         predErrorAggr.append(ut.evaluate(rawTest))
                         pl = runconfig.get("positive_label")
                         if pl is not None:
-                            predF1Aggr.append(ut.f1(rawTest, positive_label=pl[ut.labelCol]))
+                            predF1Aggr.append(ut.f1(rawTest, positive_label=pl.get(ut.labelCol)))
                         else:
                             predF1Aggr.append(ut.f1(rawTest))
 
