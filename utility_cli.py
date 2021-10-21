@@ -215,9 +215,6 @@ def main():
                 if i['name'] in categorical_variables
                 }
             )
-            # resultsAggUtility[ut.__name__]['Raw']['VariableMeasures']["Correlations"].append(
-            #     associations(rawTout, nominal_columns=categorical_variables)
-            # )
 
         # Get utility from raw with each target
         for tid in targetIDs:
@@ -267,9 +264,6 @@ def main():
                         if i['name'] in categorical_variables
                     }
                 )
-                # resultsAggUtility[ut.__name__]['Raw']['VariableMeasures']["Correlations"].append(
-                #     associations(rawIn, nominal_columns=categorical_variables)
-                # )
 
         LOGGER.info('Finished: Utility evaluation on Raw.')
 
@@ -324,9 +318,6 @@ def main():
                         if i['name'] in categorical_variables
                     }
                 )
-                # resultsAggUtility[ut.__name__][GenModel.__name__]['VariableMeasures']["Correlations"].append(
-                #     associations(syn, nominal_columns=categorical_variables)
-                # )
 
             for tid in targetIDs:
                 LOGGER.info(f'Target: {tid}')
@@ -380,9 +371,6 @@ def main():
                             if i['name'] in categorical_variables
                         }
                     )
-                    # resultsAggUtility[ut.__name__][GenModel.__name__]['VariableMeasures']["Correlations"].append(
-                    #     associations(syn, nominal_columns=categorical_variables)
-                    # )
 
             del synTwithoutTarget, synTwithTarget
 
@@ -437,9 +425,6 @@ def main():
                         if i['name'] in categorical_variables
                     }
                 )
-                # resultsAggUtility[ut.__name__][San.__name__]['VariableMeasures']["Correlations"].append(
-                #     associations(sanOut, nominal_columns=categorical_variables)
-                # )
 
             for tid in targetIDs:
                 LOGGER.info(f'Target: {tid}')
@@ -491,9 +476,6 @@ def main():
                             if i['name'] in categorical_variables
                         }
                     )
-                    # resultsAggUtility[ut.__name__][San.__name__]['VariableMeasures']["Correlations"].append(
-                    #     associations(sanIn, nominal_columns=categorical_variables)
-                    # )
 
             del sanOut, sanIn
 
