@@ -5,7 +5,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import f1_score
 from pandas import DataFrame
-from numpy import empty, true_divide, zeros, arange
+from numpy import empty, true_divide, zeros, arange, unique
 
 from utils.logging import LOGGER
 from utils.constants import *
@@ -178,7 +178,7 @@ class ClassificationTask(PredictiveModel):
 
         return [int(l == p) for l, p in zip(labelsTrue, labelsPred)]
 
-    def f1(self, data):
+    def f1(self, data, positive_label=None):
         if not isinstance(data, self.datatype):
             raise ValueError(f"Model expects input as {self.datatype} but got {type(data)}")
 
@@ -186,7 +186,10 @@ class ClassificationTask(PredictiveModel):
         labelsTrue = data[self.labelCol].apply(lambda x: self.labels[x]).values
         labelsPred = self.Distinguisher.predict(features)
 
-        return f1_score(labelsTrue, labelsPred, average='macro')
+        if len(unique(labelsTrue)) > 2:
+            return f1_score(labelsTrue, labelsPred, average='macro')
+        else:
+            return f1_score(labelsTrue, labelsPred, pos_label=self.labels[positive_label], average='binary')
 
     def _get_accuracy(self, trueLabels, predLabels):
         return sum([g == l for g, l in zip(trueLabels, predLabels)])/len(trueLabels)

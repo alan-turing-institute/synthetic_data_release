@@ -1,11 +1,11 @@
 {
-  "sensitiveAttributes": {"LENGTH_OF_STAY": "LinReg",
+  "sensitiveAttributes": {
     "RACE": "Classification"},
-  "nIter": 5,
-  "sizeRawT": 5000,
-  "sizeSynT": 5000,
-  "nSynT": 5,
-  "nTargets": 3,
+  "nIter": 4,
+  "sizeRawT": 1000,
+  "sizeSynT": 1000,
+  "nSynT": 2,
+  "nTargets": 1,
   "probIn": 0.5,
   "positive_label": {"RACE": "4"},
   "prior": true,

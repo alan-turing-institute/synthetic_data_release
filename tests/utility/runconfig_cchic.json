@@ -16,6 +16,7 @@
   "utilityTasks": {
     "RandForestClass": [["hiv"], ["cir"], ["das"], ["eth"]]
   },
+  "positive_label": {"hiv": "1.0", "cir":  1.0},
   "train_fraction": 0.7
 }
 

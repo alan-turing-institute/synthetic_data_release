@@ -309,10 +309,35 @@ def main():
     print(f'F1 rate ALL (2)\n{F1RateRawTotal2}')
 
 
+    # F1 rate for all rows
+    F1AllRaw = df.groupby(['Dataset', 'TargetID', 'SensitiveAttribute', 'TargetModel'])['F1RateRawAll']. \
+        agg({'Score': {'Mean': np.mean, 'SD': np.std}})
+    print(f"Raw F1 All:\n{F1AllRaw}")
+
+    F1AllSyn = df.groupby(['Dataset', 'TargetID', 'SensitiveAttribute', 'TargetModel'])['F1RateSynAll']. \
+        agg({'Score': {'Mean': np.mean, 'SD': np.std}})
+    print(f"Synthetic F1 All:\n{F1AllSyn}")
+    AccAllRaw = df.groupby(['Dataset', 'TargetID', 'SensitiveAttribute', 'TargetModel'])['AccRateRawAll']. \
+        agg({'Score': {'Mean': np.mean, 'SD': np.std}})
+    print(f"Raw Accuracy All:\n{AccAllRaw}")
+
+    AccAllSyn = df.groupby(['Dataset', 'TargetID', 'SensitiveAttribute', 'TargetModel'])['AccRateSynAll']. \
+        agg({'Score': {'Mean': np.mean, 'SD': np.std}})
+    print(f"Synthetic Accuracy All:\n{AccAllSyn}")
+    TPAllRaw = df.groupby(['Dataset', 'TargetID', 'SensitiveAttribute', 'TargetModel'])['TPRateRawAll']. \
+        agg({'Score': {'Mean': np.mean, 'SD': np.std}})
+    print(f"Raw TP Rate All:\n{TPAllRaw}")
+
+    TPAllSyn = df.groupby(['Dataset', 'TargetID', 'SensitiveAttribute', 'TargetModel'])['TPRateSynAll']. \
+        agg({'Score': {'Mean': np.mean, 'SD': np.std}})
+    print(f"Synthetic TP Rate All:\n{TPAllSyn}")
+
+
+
 
 
     # Linkage attack
-    print("Linkage attack results")
+    print("\n\n\n\n\nLinkage attack results")
 
     df = load_results_linkage("tests/linkage")
 
@@ -425,7 +450,7 @@ def main():
     
     
     # Utility
-    print("Utility results")
+    print("\n\n\n\n\nUtility results")
 
     df = load_results_utility("tests/utility")[1]
 
