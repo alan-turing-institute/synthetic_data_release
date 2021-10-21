@@ -1,7 +1,7 @@
 {
   "sensitiveAttributes": {
     "RACE": "Classification"},
-  "nIter": 4,
+  "nIter": 2,
   "sizeRawT": 1000,
   "sizeSynT": 1000,
   "nSynT": 2,

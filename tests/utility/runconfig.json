@@ -1,7 +1,7 @@
 {
   "nIter": 2,
-  "sizeRawT": 25000,
-  "sizeSynT": 25000,
+  "sizeRawT": 5000,
+  "sizeSynT": 5000,
   "nSynT": 2,
   "nTargets": 0,
   "Targets": ["ID26241", "ID31432"],

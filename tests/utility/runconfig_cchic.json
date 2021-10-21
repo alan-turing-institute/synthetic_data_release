@@ -1,14 +1,14 @@
 {
-  "nIter": 8,
+  "nIter": 10,
   "sizeRawT": 20000,
   "sizeSynT": 20000,
-  "nSynT": 4,
+  "nSynT": 5,
   "nTargets": 1,
   "Targets": [],
   "TestRecords": [],
   "generativeModels": {
     "IndependentHistogram": [[25]],
-    "PrivBayes": [[25, 2, 0.01], [25, 2, 0.1], [25, 2, 10.0]]
+    "PrivBayes": [[25, 2, 0.01], [25, 2, 0.1], [25, 2, 10.0], [25, 2, 30.0]]
   },
   "sanitisationTechniques": {
     "SanitiserNHS": [[10, 1, 0.99, 5, [], ["sex", "eth", "wad", "had", "mad"]]]
