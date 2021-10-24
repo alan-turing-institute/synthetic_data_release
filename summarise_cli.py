@@ -78,22 +78,34 @@ def main():
     print("Raw+Synthetic (for all rows)...")
     F1AllRaw = df.groupby(['Dataset', 'SensitiveAttribute', 'TargetModel'])['F1RateRawAll']. \
         agg({'F1RateRawAll': {'Mean': np.mean, 'SD': np.std}})
+    #F1MacroAllRaw = df.groupby(['Dataset', 'SensitiveAttribute', 'TargetModel'])['F1RateRawAll']. \
+    #    agg({'F1MacroRateRawAll': {'Mean': np.mean, 'SD': np.std}})
     F1AllSyn = df.groupby(['Dataset', 'SensitiveAttribute', 'TargetModel'])['F1RateSynAll']. \
         agg({'F1RateSynAll': {'Mean': np.mean, 'SD': np.std}})
+    #F1MacroAllSyn = df.groupby(['Dataset', 'SensitiveAttribute', 'TargetModel'])['F1RateSynAll']. \
+    #    agg({'F1MacroRateSynAll': {'Mean': np.mean, 'SD': np.std}})
     AccAllRaw = df.groupby(['Dataset', 'SensitiveAttribute', 'TargetModel'])['AccRateRawAll']. \
         agg({'AccRateRawAll': {'Mean': np.mean, 'SD': np.std}})
+    #AccBalAllRaw = df.groupby(['Dataset', 'SensitiveAttribute', 'TargetModel'])['AccRateRawAll']. \
+    #   agg({'AccBalRateRawAll': {'Mean': np.mean, 'SD': np.std}})
     AccAllSyn = df.groupby(['Dataset', 'SensitiveAttribute', 'TargetModel'])['AccRateSynAll']. \
         agg({'AccRateSynAll': {'Mean': np.mean, 'SD': np.std}})
+    #AccBalAllSyn = df.groupby(['Dataset', 'SensitiveAttribute', 'TargetModel'])['AccRateSynAll']. \
+    #    agg({'AccBalRateSynAll': {'Mean': np.mean, 'SD': np.std}})
     TPAllRaw = df.groupby(['Dataset', 'SensitiveAttribute', 'TargetModel'])['TPRateRawAll']. \
         agg({'TPRateRawAll': {'Mean': np.mean, 'SD': np.std}})
     TPAllSyn = df.groupby(['Dataset', 'SensitiveAttribute', 'TargetModel'])['TPRateSynAll']. \
         agg({'TPRateSynAll': {'Mean': np.mean, 'SD': np.std}})
     # Put everything together
-    inference_overall = F1AllRaw.merge(F1AllSyn, on=['Dataset', 'SensitiveAttribute', 'TargetModel'])\
-        .merge(AccAllRaw, on=['Dataset', 'SensitiveAttribute', 'TargetModel'])\
+    inference_overall = F1AllRaw.merge(F1AllSyn, on=['Dataset', 'SensitiveAttribute', 'TargetModel']) \
+        .merge(AccAllRaw, on=['Dataset', 'SensitiveAttribute', 'TargetModel']) \
         .merge(AccAllSyn, on=['Dataset', 'SensitiveAttribute', 'TargetModel'])\
         .merge(TPAllRaw, on=['Dataset', 'SensitiveAttribute', 'TargetModel'])\
         .merge(TPAllSyn, on=['Dataset', 'SensitiveAttribute', 'TargetModel'])
+        #.merge(F1MacroAllRaw, on=['Dataset', 'SensitiveAttribute', 'TargetModel']) \
+        #.merge(F1MacroAllSyn, on=['Dataset', 'SensitiveAttribute', 'TargetModel']) \
+        #.merge(AccBalAllRaw, on=['Dataset', 'SensitiveAttribute', 'TargetModel']) \
+        #.merge(AccBalAllSyn, on=['Dataset', 'SensitiveAttribute', 'TargetModel'])
 
     # Linkage attack
     print("\n\nLinkage attack results:")

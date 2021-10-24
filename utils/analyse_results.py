@@ -151,9 +151,10 @@ def load_results_inference(dirname, dpath, configpath):
             tpOutR, tnOutR, fpOutR, fnOutR, \
             TPrateInR, TPrateOutR, TPrateTotalR, \
             PPVrateInR, PPVrateOutR, PPVrateTotalR, \
-            F1InR, F1OutR, F1TotalR, AccInR, AccOutR, AccTotalR, F1AllR, AccAllR, TPAllR = \
+            F1InR, F1OutR, F1TotalR, AccInR, AccOutR, AccTotalR, F1AllR, F1macroAllR, AccAllR, AccBalAllR, TPAllR = \
                 np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, \
-                np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan
+                np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, \
+                np.nan, np.nan
 
         elif all(game['SensitiveType'].isin([CATEGORICAL, ORDINAL])):
             pCorrectRIn, pCorrectROut = \
@@ -170,7 +171,9 @@ def load_results_inference(dirname, dpath, configpath):
                                  runconfig["positive_label"][v[0]],
                                  runconfig["probIn"])
                 F1AllR = mean(rawRes['GuessAllF1'][rawRes['TargetPresence'] == LABEL_OUT])
+                F1macroAllR = mean(rawRes['GuessAllF1macro'][rawRes['TargetPresence'] == LABEL_OUT])
                 AccAllR = mean(rawRes['GuessAllAcc'][rawRes['TargetPresence'] == LABEL_OUT])
+                AccBalAllR = mean(rawRes['GuessAllAccBal'][rawRes['TargetPresence'] == LABEL_OUT])
                 TPAllR = mean(rawRes['GuessAllTP'][rawRes['TargetPresence'] == LABEL_OUT])
             else:
                 raise ValueError("More than one sensitive attribute in the same group")
@@ -189,9 +192,10 @@ def load_results_inference(dirname, dpath, configpath):
                     tpOutS, tnOutS, fpOutS, fnOutS, \
                     TPrateInS, TPrateOutS, TPrateTotalS, \
                     PPVrateInS, PPVrateOutS, PPVrateTotalS, \
-                    F1InS, F1OutS, F1TotalS, AccInS, AccOutS, AccTotalS, F1AllS, AccAllS, TPAllS = \
+                    F1InS, F1OutS, F1TotalS, AccInS, AccOutS, AccTotalS, F1AllS, F1macroAllS, AccAllS, AccBalAllS, TPAllS = \
                         np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, \
-                        np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan
+                        np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, \
+                        np.nan, np.nan
 
                 elif all(gmRes['SensitiveType'].isin([CATEGORICAL, ORDINAL])):
                     pCorrectSIn, pCorrectSOut = \
@@ -208,7 +212,9 @@ def load_results_inference(dirname, dpath, configpath):
                                          runconfig["positive_label"][v[0]],
                                          runconfig["probIn"])
                         F1AllS = mean(gmRes['GuessAllF1'][gmRes['TargetPresence'] == LABEL_OUT])
+                        F1macroAllS = mean(gmRes['GuessAllF1macro'][gmRes['TargetPresence'] == LABEL_OUT])
                         AccAllS = mean(gmRes['GuessAllAcc'][gmRes['TargetPresence'] == LABEL_OUT])
+                        AccBalAllS = mean(gmRes['GuessAllAccBal'][gmRes['TargetPresence'] == LABEL_OUT])
                         TPAllS = mean(gmRes['GuessAllTP'][gmRes['TargetPresence'] == LABEL_OUT])
                     else:
                         raise ValueError("More than one sensitive attribute in the same group")
@@ -226,7 +232,8 @@ def load_results_inference(dirname, dpath, configpath):
                                             PPVrateInR, PPVrateOutR, PPVrateTotalR, PPVrateInS, PPVrateOutS, PPVrateTotalS,
                                             F1InR, F1OutR, F1TotalR, F1InS, F1OutS, F1TotalS,
                                             AccInR, AccOutR, AccTotalR, AccInS, AccOutS, AccTotalS,
-                                            F1AllR, F1AllS, AccAllR, AccAllS, TPAllR, TPAllS))
+                                            F1AllR, F1macroAllR, F1AllS, F1macroAllS,
+                                            AccAllR, AccBalAllR, AccAllS, AccBalAllS, TPAllR, TPAllS))
 
 
     resAdv = DataFrame(resAdv)
@@ -242,7 +249,9 @@ def load_results_inference(dirname, dpath, configpath):
                       'PPVRateRawIn', 'PPVRateRawOut', 'PPVRateRawTotal', 'PPVRateSynIn', 'PPVRateSynOut', 'PPVRateSynTotal',
                       'F1RateRawIn', 'F1RateRawOut', 'F1RateRawTotal', 'F1RateSynIn', 'F1RateSynOut', 'F1RateSynTotal',
                       'AccRawIn', 'AccRawOut', 'AccRawTotal', 'AccSynIn', 'AccSynOut', 'AccSynTotal',
-                      'F1RateRawAll', 'F1RateSynAll', 'AccRateRawAll', 'AccRateSynAll', 'TPRateRawAll', 'TPRateSynAll']
+                      'F1RateRawAll', 'F1MacroRateRawAll', 'F1RateSynAll', 'F1MacroRateSynAll',
+                      'AccRateRawAll', 'AccBalRateRawAll', 'AccRateSynAll', 'AccBalRateSynAll',
+                      'TPRateRawAll', 'TPRateSynAll']
 
     resAdv['PrivacyGain'] = resAdv['AdvantageRaw'] - resAdv['AdvantageSyn']
 
