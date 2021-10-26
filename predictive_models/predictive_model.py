@@ -178,7 +178,8 @@ class ClassificationTask(PredictiveModel):
 
         return [int(l == p) for l, p in zip(labelsTrue, labelsPred)]
 
-    def f1(self, data, positive_label=None):
+    def f1(self, data, positive_label):
+        """Calculate F1 metric (binary) given a positive label"""
         if not isinstance(data, self.datatype):
             raise ValueError(f"Model expects input as {self.datatype} but got {type(data)}")
 
@@ -186,10 +187,18 @@ class ClassificationTask(PredictiveModel):
         labelsTrue = data[self.labelCol].apply(lambda x: self.labels[x]).values
         labelsPred = self.Distinguisher.predict(features)
 
-        if len(unique(labelsTrue)) > 2:
-            return f1_score(labelsTrue, labelsPred, average='macro')
-        else:
-            return f1_score(labelsTrue, labelsPred, pos_label=self.labels[positive_label], average='binary')
+        return f1_score(labelsTrue, labelsPred, pos_label=self.labels[positive_label], average='binary')
+
+    def f1macro(self, data):
+        """Calculate F1 metric (macro) - takes average of F1 for all labels"""
+        if not isinstance(data, self.datatype):
+            raise ValueError(f"Model expects input as {self.datatype} but got {type(data)}")
+
+        features = self._encode_data(data.drop(self.labelCol, axis=1))
+        labelsTrue = data[self.labelCol].apply(lambda x: self.labels[x]).values
+        labelsPred = self.Distinguisher.predict(features)
+
+        return f1_score(labelsTrue, labelsPred, average='macro')
 
     def _get_accuracy(self, trueLabels, predLabels):
         return sum([g == l for g, l in zip(trueLabels, predLabels)])/len(trueLabels)

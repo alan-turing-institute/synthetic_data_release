@@ -166,5 +166,5 @@ The results file produced after successfully running the script is written to `t
 In order to generate summary tables from the two privacy evaluation and the utility evaluation and generate 
 the respective plots, run the following:
 ```
-python summarise_cli.py -D data/cchic_cleaned -RCI tests/inference/runconfig_cchic -RCL tests/linkage/runconfig_cchic
+python summarise_cli.py -D data/cchic_cleaned -RCI tests/inference/runconfig_cchic -RCL tests/linkage/runconfig_cchic -RCU tests/utility/runconfig_cchic
 ```

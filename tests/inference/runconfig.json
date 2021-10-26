@@ -2,8 +2,8 @@
   "sensitiveAttributes": {
     "RACE": "Classification"},
   "nIter": 2,
-  "sizeRawT": 1000,
-  "sizeSynT": 1000,
+  "sizeRawT": 500,
+  "sizeSynT": 500,
   "nSynT": 2,
   "nTargets": 1,
   "probIn": 0.5,
@@ -17,7 +17,7 @@
                              "1":  0.05}},
   "Targets": ["ID26241", "ID31432", "ID27428"],
   "generativeModels": {
-    "PrivBayes": [[25, 1, 1.0]]
+    "PrivBayes": [[25, 1, 0.1], [25, 1, 1.0], [25, 1, 10.0]]
   },
   "sanitisationTechniques": {
   }
