@@ -240,7 +240,7 @@ def errorplots_linkage_per_target_precision(df, tid):
     ppv_naive = plt.errorbar(data_naive["TargetModel"], data_naive["PPVRateSynMean"],
                        yerr=data_naive["PPVRateSynSD"], fmt='o', color='black',
                        ecolor='lightgray', elinewidth=3, capsize=0, transform=trans3)
-    plt.title(f"Mmebership attack: Positive Predictive Value (Precision) (target {tid})")
+    plt.title(f"Memebership attack: Positive Predictive Value (Precision) (target {tid})")
     ppv_cor.set_label("PPV (Correlation Feature Set)")
     ppv_hist.set_label("PPV (Histogram Feature Set)")
     ppv_naive.set_label("PPV (Naive Feature Set)")
