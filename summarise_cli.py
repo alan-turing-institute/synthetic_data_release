@@ -36,6 +36,8 @@ def errorplots_inference_overall_accuracy(df, sa):
     trans1 = Affine2D().translate(-0.1, 0.0) + ax.transData
     trans2 = Affine2D().translate(0.1, 0.0) + ax.transData
 
+
+
     acc = plt.errorbar(data["TargetModel"], data["AccRateSynAllMean"],
                        yerr=data["AccRateSynAllSD"], fmt='o', color='blue',
                        ecolor='lightgray', elinewidth=3, capsize=0, transform=trans1)
@@ -45,9 +47,11 @@ def errorplots_inference_overall_accuracy(df, sa):
     plt.title("Inference attack: Accuracy and Balanced Accuracy metrics")
     acc.set_label("Accuracy")
     bacc.set_label("Balanced Accuracy")
-    ax.legend(loc='lower right')
+    ax.legend(loc='best')
     plt.xlabel("Generative mechanism")
     plt.ylabel("Score")
+    ax.tick_params(axis='x', rotation=30)
+    plt.tight_layout()
     plt.savefig(f'tests/output_plots/inference_overall_accuracy_{sa}.pdf')
 
 
@@ -67,9 +71,11 @@ def errorplots_inference_overall_pr(df, sa):
     plt.title("Inference attack: Recall and precision metrics")
     tp.set_label("Recall (TPR)")
     ppv.set_label("Precision (PPV)")
-    ax.legend(loc='lower right')
+    ax.legend(loc='best')
     plt.xlabel("Generative mechanism")
     plt.ylabel("Score")
+    ax.tick_params(axis='x', rotation=30)
+    plt.tight_layout()
     plt.savefig(f'tests/output_plots/inference_overall_pr_{sa}.pdf')
 
 
@@ -94,9 +100,11 @@ def errorplots_inference_overall_f1(df, sa):
     f1.set_label("F1 (binary)")
     f1macro.set_label("F1 (macro)")
     f1micro.set_label("F1 (micro)")
-    ax.legend(loc='lower right')
+    ax.legend(loc='best')
     plt.xlabel("Generative mechanism")
     plt.ylabel("Score")
+    ax.tick_params(axis='x', rotation=30)
+    plt.tight_layout()
     plt.savefig(f'tests/output_plots/inference_overall_f1_{sa}.pdf')
 
 
@@ -110,9 +118,11 @@ def errorplots_inference_per_target_acc(df, sa, tid):
                        ecolor='lightgray', elinewidth=3, capsize=0)
     plt.title(f"Inference attack: Accuracy metric (target {tid})")
     acc.set_label("Accuracy")
-    ax.legend(loc='lower right')
+    ax.legend(loc='best')
     plt.xlabel("Generative mechanism")
     plt.ylabel("Score")
+    ax.tick_params(axis='x', rotation=30)
+    plt.tight_layout()
     plt.savefig(f'tests/output_plots/inference_per_target_acc_{sa}_{tid}.pdf')
 
 
@@ -140,9 +150,11 @@ def errorplots_linkage_per_target_acc(df, tid):
     acc_cor.set_label("Accuracy (Correlation Feature Set)")
     acc_hist.set_label("Accuracy (Histogram Feature Set)")
     acc_naive.set_label("Accuracy (Naive Feature Set)")
-    ax.legend(loc='lower right')
+    ax.legend(loc='best')
     plt.xlabel("Generative mechanism")
     plt.ylabel("Score")
+    ax.tick_params(axis='x', rotation=30)
+    plt.tight_layout()
     plt.savefig(f'tests/output_plots/linkage_per_target_acc_{tid}.pdf')
 
 
@@ -170,7 +182,7 @@ def errorplots_linkage_per_target_f1(df, tid):
     f1_cor.set_label("F1 (Correlation Feature Set)")
     f1_hist.set_label("F1 (Histogram Feature Set)")
     f1_naive.set_label("F1 (Naive Feature Set)")
-    ax.legend(loc='lower right')
+    ax.legend(loc='best')
     plt.xlabel("Generative mechanism")
     plt.ylabel("Score")
     plt.savefig(f'tests/output_plots/linkage_per_target_F1_{tid}.pdf')
@@ -200,9 +212,11 @@ def errorplots_linkage_per_target_recall(df, tid):
     tpr_cor.set_label("TPR (Correlation Feature Set)")
     tpr_hist.set_label("TPR (Histogram Feature Set)")
     tpr_naive.set_label("TPR (Naive Feature Set)")
-    ax.legend(loc='lower right')
+    ax.legend(loc='best')
     plt.xlabel("Generative mechanism")
     plt.ylabel("Score")
+    ax.tick_params(axis='x', rotation=30)
+    plt.tight_layout()
     plt.savefig(f'tests/output_plots/linkage_per_target_TPR_{tid}.pdf')
 
 
@@ -230,9 +244,11 @@ def errorplots_linkage_per_target_precision(df, tid):
     ppv_cor.set_label("PPV (Correlation Feature Set)")
     ppv_hist.set_label("PPV (Histogram Feature Set)")
     ppv_naive.set_label("PPV (Naive Feature Set)")
-    ax.legend(loc='lower right')
+    ax.legend(loc='best')
     plt.xlabel("Generative mechanism")
     plt.ylabel("Score")
+    ax.tick_params(axis='x', rotation=30)
+    plt.tight_layout()
     plt.savefig(f'tests/output_plots/linkage_per_target_PPV_{tid}.pdf')
 
 
@@ -257,9 +273,11 @@ def errorplots_utility_classification(df, label):
     acc.set_label("Accuracy")
     f1.set_label("F1")
     f1macro.set_label("F1-macro")
-    ax.legend(loc='lower right')
+    ax.legend(loc='best')
     plt.xlabel("Generative mechanism")
     plt.ylabel("Score")
+    ax.tick_params(axis='x', rotation=30)
+    plt.tight_layout()
     plt.savefig(f'tests/output_plots/utility_classification_{label}.pdf')
 
 
@@ -275,6 +293,8 @@ def errorplots_utility_means(df, column):
     ax.legend(loc='best')
     plt.xlabel("Generative mechanism")
     plt.ylabel("Score")
+    ax.tick_params(axis='x', rotation=30)
+    plt.tight_layout()
     plt.savefig(f'tests/output_plots/utility_mean_{column}.pdf')
 
 
@@ -290,6 +310,8 @@ def errorplots_utility_medians(df, column):
     ax.legend(loc='best')
     plt.xlabel("Generative mechanism")
     plt.ylabel("Score")
+    ax.tick_params(axis='x', rotation=30)
+    plt.tight_layout()
     plt.savefig(f'tests/output_plots/utility_median_{column}.pdf')
 
 
@@ -309,7 +331,7 @@ def errorplots_utility_frequencies(df, column):
         data = df[df["TargetModel"] == m].iloc[0, :]
         try:
             y = data[column + " Mean"]
-            x = np.arange(0, len(y))
+            x = [f"Cat {n}" for n in np.arange(0, len(y))]
             err = data[column + " SD"]
             freqs.append(plt.errorbar(x, y,
                          yerr=err, fmt='o', color=c,
@@ -321,6 +343,8 @@ def errorplots_utility_frequencies(df, column):
     ax.legend(loc='best')
     plt.xlabel("Categories")
     plt.ylabel("Frequency")
+    ax.tick_params(axis='x', rotation=30)
+    plt.tight_layout()
     plt.savefig(f'tests/output_plots/utility_freq_{column}.pdf')
 
 
