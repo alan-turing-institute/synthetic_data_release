@@ -44,7 +44,7 @@ def errorplots_inference_overall_accuracy(df, sa):
     bacc = plt.errorbar(data["TargetModel"], data["AccBalRateSynAllMean"],
                         yerr=data["AccBalRateSynAllSD"], fmt='o', color='red',
                         ecolor='lightgray', elinewidth=3, capsize=0, transform=trans2)
-    plt.title("Inference attack: Accuracy and Balanced Accuracy metrics")
+    plt.title(f"Inference attack on all records ({sa}): Accuracy metrics")
     acc.set_label("Accuracy")
     bacc.set_label("Balanced Accuracy")
     ax.legend(loc='best')
@@ -68,7 +68,7 @@ def errorplots_inference_overall_pr(df, sa):
     ppv = plt.errorbar(data["TargetModel"], data["PPVRateSynAllMean"],
                        yerr=data["PPVRateSynAllSD"], fmt='o', color='red',
                        ecolor='lightgray', elinewidth=3, capsize=0, transform=trans2)
-    plt.title("Inference attack: Recall and precision metrics")
+    plt.title(f"Inference attack on all records ({sa}): Recall and precision metrics")
     tp.set_label("Recall (TPR)")
     ppv.set_label("Precision (PPV)")
     ax.legend(loc='best')
@@ -96,7 +96,7 @@ def errorplots_inference_overall_f1(df, sa):
     f1micro = plt.errorbar(data["TargetModel"], data["F1MicroRateSynAllMean"],
                            yerr=data["F1MicroRateSynAllSD"], fmt='o', color='black',
                            ecolor='lightgray', elinewidth=3, capsize=0, transform=trans3)
-    plt.title("Inference attack: F1 metrics")
+    plt.title(f"Inference attack on all records ({sa}): F1 metrics")
     f1.set_label("F1 (binary)")
     f1macro.set_label("F1 (macro)")
     f1micro.set_label("F1 (micro)")
@@ -116,7 +116,7 @@ def errorplots_inference_per_target_acc(df, sa, tid):
     acc = plt.errorbar(data["TargetModel"], data["AccSynTotalMean"],
                        yerr=data["AccSynTotalSD"], fmt='o', color='blue',
                        ecolor='lightgray', elinewidth=3, capsize=0)
-    plt.title(f"Inference attack: Accuracy metric (target {tid})")
+    plt.title(f"Inference attack on target {tid} ({sa}): Accuracy ")
     acc.set_label("Accuracy")
     ax.legend(loc='best')
     plt.xlabel("Generative mechanism")
@@ -146,7 +146,7 @@ def errorplots_linkage_per_target_acc(df, tid):
     acc_naive = plt.errorbar(data_naive["TargetModel"], data_naive["AccuracySynMean"],
                        yerr=data_naive["AccuracySynSD"], fmt='o', color='black',
                        ecolor='lightgray', elinewidth=3, capsize=0, transform=trans3)
-    plt.title(f"Membership attack: Accuracy metric (target {tid})")
+    plt.title(f"Membership attack on target {tid}: Accuracy")
     acc_cor.set_label("Accuracy (Correlation Feature Set)")
     acc_hist.set_label("Accuracy (Histogram Feature Set)")
     acc_naive.set_label("Accuracy (Naive Feature Set)")
@@ -178,7 +178,7 @@ def errorplots_linkage_per_target_f1(df, tid):
     f1_naive = plt.errorbar(data_naive["TargetModel"], data_naive["F1RateSynMean"],
                        yerr=data_naive["F1RateSynSD"], fmt='o', color='black',
                        ecolor='lightgray', elinewidth=3, capsize=0, transform=trans3)
-    plt.title(f"Membership attack: F1 metric (target {tid})")
+    plt.title(f"Membership attack on target {tid}: F1")
     f1_cor.set_label("F1 (Correlation Feature Set)")
     f1_hist.set_label("F1 (Histogram Feature Set)")
     f1_naive.set_label("F1 (Naive Feature Set)")
@@ -208,7 +208,7 @@ def errorplots_linkage_per_target_recall(df, tid):
     tpr_naive = plt.errorbar(data_naive["TargetModel"], data_naive["TPRateSynMean"],
                        yerr=data_naive["TPRateSynSD"], fmt='o', color='black',
                        ecolor='lightgray', elinewidth=3, capsize=0, transform=trans3)
-    plt.title(f"Membership attack: True Positive rate (Recall) (target {tid})")
+    plt.title(f"Membership attack on target {tid}: True Positive rate (Recall)")
     tpr_cor.set_label("TPR (Correlation Feature Set)")
     tpr_hist.set_label("TPR (Histogram Feature Set)")
     tpr_naive.set_label("TPR (Naive Feature Set)")
@@ -240,7 +240,7 @@ def errorplots_linkage_per_target_precision(df, tid):
     ppv_naive = plt.errorbar(data_naive["TargetModel"], data_naive["PPVRateSynMean"],
                        yerr=data_naive["PPVRateSynSD"], fmt='o', color='black',
                        ecolor='lightgray', elinewidth=3, capsize=0, transform=trans3)
-    plt.title(f"Memebership attack: Positive Predictive Value (Precision) (target {tid})")
+    plt.title(f"Memebership attack on target {tid}: Positive Predictive Value (Precision)")
     ppv_cor.set_label("PPV (Correlation Feature Set)")
     ppv_hist.set_label("PPV (Histogram Feature Set)")
     ppv_naive.set_label("PPV (Naive Feature Set)")
@@ -288,7 +288,7 @@ def errorplots_utility_means(df, column):
     means = plt.errorbar(data["TargetModel"], data[f"{column}Mean"],
                        yerr=data[f"{column}SD"], fmt='o', color='blue',
                        ecolor='lightgray', elinewidth=3, capsize=0)
-    plt.title(f"Utility: Variable Mean ({column})")
+    plt.title(f"Utility: Mean ({column})")
     means.set_label("Mean")
     ax.legend(loc='best')
     plt.xlabel("Generative mechanism")
@@ -305,7 +305,7 @@ def errorplots_utility_medians(df, column):
     means = plt.errorbar(data["TargetModel"], data[f"{column}Mean"],
                        yerr=data[f"{column}SD"], fmt='o', color='blue',
                        ecolor='lightgray', elinewidth=3, capsize=0)
-    plt.title(f"Utility: Variable Median ({column})")
+    plt.title(f"Utility: Median ({column})")
     means.set_label("Median")
     ax.legend(loc='best')
     plt.xlabel("Generative mechanism")
