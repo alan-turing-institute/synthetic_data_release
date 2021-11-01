@@ -13,6 +13,14 @@ plt.style.use('seaborn-whitegrid')
 plt.rcParams.update(plt.rcParamsDefault)
 
 
+def id_conversion(id, dict):
+    """Convert id if dictionary is provided, else return original id"""
+    if dict is not None:
+        return dict["label_dict"][id]
+    else:
+        return id
+
+
 def custom_mean(v):
     """Mean that returns nan on value error"""
     try:
@@ -35,8 +43,6 @@ def errorplots_inference_overall_accuracy(df, sa):
     fig, ax = plt.subplots()
     trans1 = Affine2D().translate(-0.1, 0.0) + ax.transData
     trans2 = Affine2D().translate(0.1, 0.0) + ax.transData
-
-
 
     acc = plt.errorbar(data["TargetModel"], data["AccRateSynAllMean"],
                        yerr=data["AccRateSynAllSD"], fmt='o', color='blue',
@@ -108,7 +114,7 @@ def errorplots_inference_overall_f1(df, sa):
     plt.savefig(f'tests/output_plots/inference_overall_f1_{sa}.pdf')
 
 
-def errorplots_inference_per_target_acc(df, sa, tid):
+def errorplots_inference_per_target_acc(df, sa, tid, hash):
     """Plot inference per target accuracy for attribute sa and target tid"""
     data = df[(df["SensitiveAttribute"] == sa) & (df["TargetID"] == tid)]
     fig, ax = plt.subplots()
@@ -116,17 +122,17 @@ def errorplots_inference_per_target_acc(df, sa, tid):
     acc = plt.errorbar(data["TargetModel"], data["AccSynTotalMean"],
                        yerr=data["AccSynTotalSD"], fmt='o', color='blue',
                        ecolor='lightgray', elinewidth=3, capsize=0)
-    plt.title(f"Inference attack on target {tid} ({sa}): Accuracy ")
+    plt.title(f"Inference attack on target {id_conversion(tid, hash)} ({sa}): Accuracy ")
     acc.set_label("Accuracy")
     ax.legend(loc='best')
     plt.xlabel("Generative mechanism")
     plt.ylabel("Score")
     ax.tick_params(axis='x', rotation=30)
     plt.tight_layout()
-    plt.savefig(f'tests/output_plots/inference_per_target_acc_{sa}_{tid}.pdf')
+    plt.savefig(f'tests/output_plots/inference_per_target_acc_{sa}_{id_conversion(tid, hash)}.pdf')
 
 
-def errorplots_linkage_per_target_acc(df, tid):
+def errorplots_linkage_per_target_acc(df, tid, hash):
     """Plot linkage per target accuracy for target tid (for all feature set methods)"""
     data_corr = df[(df["TargetID"] == tid) & (df["FeatureSet"] == "Correlations")]
     data_hist = df[(df["TargetID"] == tid) & (df["FeatureSet"] == "Histogram")]
@@ -146,7 +152,7 @@ def errorplots_linkage_per_target_acc(df, tid):
     acc_naive = plt.errorbar(data_naive["TargetModel"], data_naive["AccuracySynMean"],
                        yerr=data_naive["AccuracySynSD"], fmt='o', color='black',
                        ecolor='lightgray', elinewidth=3, capsize=0, transform=trans3)
-    plt.title(f"Membership attack on target {tid}: Accuracy")
+    plt.title(f"Membership attack on target {id_conversion(tid, hash)}: Accuracy")
     acc_cor.set_label("Accuracy (Correlation Feature Set)")
     acc_hist.set_label("Accuracy (Histogram Feature Set)")
     acc_naive.set_label("Accuracy (Naive Feature Set)")
@@ -155,10 +161,10 @@ def errorplots_linkage_per_target_acc(df, tid):
     plt.ylabel("Score")
     ax.tick_params(axis='x', rotation=30)
     plt.tight_layout()
-    plt.savefig(f'tests/output_plots/linkage_per_target_acc_{tid}.pdf')
+    plt.savefig(f'tests/output_plots/linkage_per_target_acc_{id_conversion(tid, hash)}.pdf')
 
 
-def errorplots_linkage_per_target_f1(df, tid):
+def errorplots_linkage_per_target_f1(df, tid, hash):
     """Plot linkage per target F1 for target tid (for all feature set methods)"""
     data_corr = df[(df["TargetID"] == tid) & (df["FeatureSet"] == "Correlations")]
     data_hist = df[(df["TargetID"] == tid) & (df["FeatureSet"] == "Histogram")]
@@ -178,17 +184,17 @@ def errorplots_linkage_per_target_f1(df, tid):
     f1_naive = plt.errorbar(data_naive["TargetModel"], data_naive["F1RateSynMean"],
                        yerr=data_naive["F1RateSynSD"], fmt='o', color='black',
                        ecolor='lightgray', elinewidth=3, capsize=0, transform=trans3)
-    plt.title(f"Membership attack on target {tid}: F1")
+    plt.title(f"Membership attack on target {id_conversion(tid, hash)}: F1")
     f1_cor.set_label("F1 (Correlation Feature Set)")
     f1_hist.set_label("F1 (Histogram Feature Set)")
     f1_naive.set_label("F1 (Naive Feature Set)")
     ax.legend(loc='best')
     plt.xlabel("Generative mechanism")
     plt.ylabel("Score")
-    plt.savefig(f'tests/output_plots/linkage_per_target_F1_{tid}.pdf')
+    plt.savefig(f'tests/output_plots/linkage_per_target_F1_{id_conversion(tid, hash)}.pdf')
 
 
-def errorplots_linkage_per_target_recall(df, tid):
+def errorplots_linkage_per_target_recall(df, tid, hash):
     """Plot linkage per target recall for target tid (for all feature set methods)"""
     data_corr = df[(df["TargetID"] == tid) & (df["FeatureSet"] == "Correlations")]
     data_hist = df[(df["TargetID"] == tid) & (df["FeatureSet"] == "Histogram")]
@@ -208,7 +214,7 @@ def errorplots_linkage_per_target_recall(df, tid):
     tpr_naive = plt.errorbar(data_naive["TargetModel"], data_naive["TPRateSynMean"],
                        yerr=data_naive["TPRateSynSD"], fmt='o', color='black',
                        ecolor='lightgray', elinewidth=3, capsize=0, transform=trans3)
-    plt.title(f"Membership attack on target {tid}: True Positive rate (Recall)")
+    plt.title(f"Membership attack on target {id_conversion(tid, hash)}: True Positive rate (Recall)")
     tpr_cor.set_label("TPR (Correlation Feature Set)")
     tpr_hist.set_label("TPR (Histogram Feature Set)")
     tpr_naive.set_label("TPR (Naive Feature Set)")
@@ -217,10 +223,10 @@ def errorplots_linkage_per_target_recall(df, tid):
     plt.ylabel("Score")
     ax.tick_params(axis='x', rotation=30)
     plt.tight_layout()
-    plt.savefig(f'tests/output_plots/linkage_per_target_TPR_{tid}.pdf')
+    plt.savefig(f'tests/output_plots/linkage_per_target_TPR_{id_conversion(tid, hash)}.pdf')
 
 
-def errorplots_linkage_per_target_precision(df, tid):
+def errorplots_linkage_per_target_precision(df, tid, hash):
     """Plot linkage per target precision for target tid (for all feature set methods)"""
     data_corr = df[(df["TargetID"] == tid) & (df["FeatureSet"] == "Correlations")]
     data_hist = df[(df["TargetID"] == tid) & (df["FeatureSet"] == "Histogram")]
@@ -240,7 +246,7 @@ def errorplots_linkage_per_target_precision(df, tid):
     ppv_naive = plt.errorbar(data_naive["TargetModel"], data_naive["PPVRateSynMean"],
                        yerr=data_naive["PPVRateSynSD"], fmt='o', color='black',
                        ecolor='lightgray', elinewidth=3, capsize=0, transform=trans3)
-    plt.title(f"Memebership attack on target {tid}: Positive Predictive Value (Precision)")
+    plt.title(f"Memebership attack on target {id_conversion(tid, hash)}: Positive Predictive Value (Precision)")
     ppv_cor.set_label("PPV (Correlation Feature Set)")
     ppv_hist.set_label("PPV (Histogram Feature Set)")
     ppv_naive.set_label("PPV (Naive Feature Set)")
@@ -249,7 +255,7 @@ def errorplots_linkage_per_target_precision(df, tid):
     plt.ylabel("Score")
     ax.tick_params(axis='x', rotation=30)
     plt.tight_layout()
-    plt.savefig(f'tests/output_plots/linkage_per_target_PPV_{tid}.pdf')
+    plt.savefig(f'tests/output_plots/linkage_per_target_PPV_{id_conversion(tid, hash)}.pdf')
 
 
 def errorplots_utility_classification(df, label):
@@ -355,6 +361,7 @@ def main():
     argparser.add_argument('--runconfig_inference', '-RCI', type=str, help='Path to inference runconfig file')
     argparser.add_argument('--runconfig_linkage', '-RCL', type=str, help='Path to linkage runconfig file')
     argparser.add_argument('--runconfig_utility', '-RCU', type=str, help='Path to utility runconfig file')
+    argparser.add_argument('--hash', '-H', type=str, help='Path to hash dictionary file', default=None)
     args = argparser.parse_args()
 
     # Inference attack
@@ -366,6 +373,11 @@ def main():
     pIn = runconfig['probIn']
     with open(args.runconfig_utility + ".json") as f:
         runconfig_utility = json.load(f)
+    if args.hash is None:
+        hash = None
+    else:
+        with open(args.hash + ".json") as f:
+            hash = json.load(f)
 
     # Synthetic results
     print("Synthetic dataset (by target)...")
@@ -770,14 +782,14 @@ def main():
         errorplots_inference_overall_pr(inference_overall, sa)
         errorplots_inference_overall_f1(inference_overall, sa)
         for tid in runconfig["Targets"]:
-            errorplots_inference_per_target_acc(inference_per_target, sa, tid)
+            errorplots_inference_per_target_acc(inference_per_target, sa, tid, hash)
 
     # Plot linkage performance plots
     for tid in runconfig["Targets"]:
-        errorplots_linkage_per_target_acc(linkage_per_target, tid)
-        errorplots_linkage_per_target_f1(linkage_per_target, tid)
-        errorplots_linkage_per_target_recall(linkage_per_target, tid)
-        errorplots_linkage_per_target_precision(linkage_per_target, tid)
+        errorplots_linkage_per_target_acc(linkage_per_target, tid, hash)
+        errorplots_linkage_per_target_f1(linkage_per_target, tid, hash)
+        errorplots_linkage_per_target_recall(linkage_per_target, tid, hash)
+        errorplots_linkage_per_target_precision(linkage_per_target, tid, hash)
 
     # Plot utility (classification) plots
     for label in runconfig_utility["utilityTasks"]["RandForestClass"]:
