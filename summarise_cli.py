@@ -279,7 +279,7 @@ def errorplots_utility_classification(df, label):
                       ecolor='lightgray', elinewidth=3, capsize=0, transform=trans3)
     plt.title(f"Utility: Predictive model (Label: {label})")
     acc.set_label("Accuracy")
-    f1.set_label("F1")
+    f1.set_label("F1-binary")
     f1macro.set_label("F1-macro")
     ax.legend(loc='best')
     plt.xlabel("Generative mechanism")
@@ -766,17 +766,24 @@ def main():
     # convert index to columns and rename columns
     inference_overall = inference_overall.reset_index()
     inference_overall.columns = [''.join(col) for col in inference_overall.columns]
+    inference_overall = inference_overall[inference_overall.TargetModel != "IndependentHistogram"]
     inference_per_target = inference_per_target.reset_index()
     inference_per_target.columns = [''.join(col) for col in inference_per_target.columns]
+    inference_per_target = inference_per_target[inference_per_target.TargetModel != "IndependentHistogram"]
     linkage_per_target = linkage_per_target.reset_index()
     linkage_per_target.columns = [''.join(col) for col in linkage_per_target.columns]
+    linkage_per_target = linkage_per_target[linkage_per_target.TargetModel != "IndependentHistogram"]
     utility_classification_overall = utility_classification_overall.reset_index()
     utility_classification_overall.columns = [''.join(col) for col in utility_classification_overall.columns]
+    utility_classification_overall = utility_classification_overall[utility_classification_overall.TargetModel != "IndependentHistogram"]
     utility_means_overall = utility_means_overall.reset_index()
     utility_means_overall.columns = [''.join(col) for col in utility_means_overall.columns]
+    utility_means_overall = utility_means_overall[utility_means_overall.TargetModel != "IndependentHistogram"]
     utility_medians_overall = utility_medians_overall.reset_index()
     utility_medians_overall.columns = [''.join(col) for col in utility_medians_overall.columns]
+    utility_medians_overall = utility_medians_overall[utility_medians_overall.TargetModel != "IndependentHistogram"]
     utility_freq_overall = utility_freq_overall.reset_index()
+    utility_freq_overall = utility_freq_overall[utility_freq_overall.TargetModel != "IndependentHistogram"]
 
     # Plot inference performance plots
     for sa in inference_overall["SensitiveAttribute"]:
