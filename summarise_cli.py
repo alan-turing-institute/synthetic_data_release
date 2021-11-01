@@ -422,7 +422,7 @@ def main():
     data_df = pd.read_csv(args.datapath + ".csv")
     for tid in runconfig["Targets"]:
         for sa in runconfig["prior_values"].keys():
-            true_values = [data_df.loc[int(tid[2:]), sa]] * runconfig["nSynT"]
+            true_values = [str(data_df.loc[int(tid[2:]), sa])] * runconfig["nSynT"]
             labels = list(runconfig["prior_values"][sa].keys())
             values = list(runconfig["prior_values"][sa].values())
             (labels, values) = zip(*runconfig["prior_values"][sa].items())
