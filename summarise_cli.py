@@ -191,6 +191,8 @@ def errorplots_linkage_per_target_f1(df, tid, hash):
     ax.legend(loc='best')
     plt.xlabel("Generative mechanism")
     plt.ylabel("Score")
+    ax.tick_params(axis='x', rotation=30)
+    plt.tight_layout()
     plt.savefig(f'tests/output_plots/linkage_per_target_F1_{id_conversion(tid, hash)}.pdf')
 
 
