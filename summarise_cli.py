@@ -260,6 +260,133 @@ def errorplots_linkage_per_target_precision(df, tid, hash):
     plt.savefig(f'tests/output_plots/linkage_per_target_PPV_{id_conversion(tid, hash)}.pdf')
 
 
+def errorplots_linkage_overall_accuracy(df):
+    """Plot linkage overall accuracy for all targets (for all feature set methods)"""
+    data_corr = df[df["FeatureSet"] == "Correlations"]
+    data_hist = df[df["FeatureSet"] == "Histogram"]
+    data_naive = df[df["FeatureSet"] == "Naive"]
+    fig, ax = plt.subplots()
+
+    trans1 = Affine2D().translate(-0.1, 0.0) + ax.transData
+    trans2 = Affine2D().translate(0.0, 0.0) + ax.transData
+    trans3 = Affine2D().translate(0.1, 0.0) + ax.transData
+
+    ppv_cor = plt.errorbar(data_corr["TargetModel"], data_corr["AccuracySynMean"],
+                       yerr=data_corr["AccuracySynSD"], fmt='o', color='blue',
+                       ecolor='lightgray', elinewidth=3, capsize=0, transform=trans1)
+    ppv_hist = plt.errorbar(data_hist["TargetModel"], data_hist["AccuracySynMean"],
+                       yerr=data_hist["AccuracySynSD"], fmt='o', color='red',
+                       ecolor='lightgray', elinewidth=3, capsize=0, transform=trans2)
+    ppv_naive = plt.errorbar(data_naive["TargetModel"], data_naive["AccuracySynMean"],
+                       yerr=data_naive["AccuracySynSD"], fmt='o', color='black',
+                       ecolor='lightgray', elinewidth=3, capsize=0, transform=trans3)
+    plt.title(f"Memebership attack average across targets: Accuracy score")
+    ppv_cor.set_label("Accuracy (Correlation Feature Set)")
+    ppv_hist.set_label("Accuracy (Histogram Feature Set)")
+    ppv_naive.set_label("Accuracy (Naive Feature Set)")
+    ax.legend(loc='best')
+    plt.xlabel("Generative mechanism")
+    plt.ylabel("Score")
+    ax.tick_params(axis='x', rotation=30)
+    plt.tight_layout()
+    plt.savefig(f'tests/output_plots/linkage_overall_accuracy.pdf')
+
+
+def errorplots_linkage_overall_f1(df):
+    """Plot linkage overall F1 for all targets (for all feature set methods)"""
+    data_corr = df[df["FeatureSet"] == "Correlations"]
+    data_hist = df[df["FeatureSet"] == "Histogram"]
+    data_naive = df[df["FeatureSet"] == "Naive"]
+    fig, ax = plt.subplots()
+
+    trans1 = Affine2D().translate(-0.1, 0.0) + ax.transData
+    trans2 = Affine2D().translate(0.0, 0.0) + ax.transData
+    trans3 = Affine2D().translate(0.1, 0.0) + ax.transData
+
+    ppv_cor = plt.errorbar(data_corr["TargetModel"], data_corr["F1RateSynMean"],
+                       yerr=data_corr["F1RateSynSD"], fmt='o', color='blue',
+                       ecolor='lightgray', elinewidth=3, capsize=0, transform=trans1)
+    ppv_hist = plt.errorbar(data_hist["TargetModel"], data_hist["F1RateSynMean"],
+                       yerr=data_hist["F1RateSynSD"], fmt='o', color='red',
+                       ecolor='lightgray', elinewidth=3, capsize=0, transform=trans2)
+    ppv_naive = plt.errorbar(data_naive["TargetModel"], data_naive["F1RateSynMean"],
+                       yerr=data_naive["F1RateSynSD"], fmt='o', color='black',
+                       ecolor='lightgray', elinewidth=3, capsize=0, transform=trans3)
+    plt.title(f"Memebership attack average across targets: F1 score")
+    ppv_cor.set_label("F1 (Correlation Feature Set)")
+    ppv_hist.set_label("F1 (Histogram Feature Set)")
+    ppv_naive.set_label("F1 (Naive Feature Set)")
+    ax.legend(loc='best')
+    plt.xlabel("Generative mechanism")
+    plt.ylabel("Score")
+    ax.tick_params(axis='x', rotation=30)
+    plt.tight_layout()
+    plt.savefig(f'tests/output_plots/linkage_overall_F1.pdf')
+
+def errorplots_linkage_overall_recall(df):
+    """Plot linkage overall recall for all targets (for all feature set methods)"""
+    data_corr = df[df["FeatureSet"] == "Correlations"]
+    data_hist = df[df["FeatureSet"] == "Histogram"]
+    data_naive = df[df["FeatureSet"] == "Naive"]
+    fig, ax = plt.subplots()
+
+    trans1 = Affine2D().translate(-0.1, 0.0) + ax.transData
+    trans2 = Affine2D().translate(0.0, 0.0) + ax.transData
+    trans3 = Affine2D().translate(0.1, 0.0) + ax.transData
+
+    ppv_cor = plt.errorbar(data_corr["TargetModel"], data_corr["TPRateSynMean"],
+                       yerr=data_corr["TPRateSynSD"], fmt='o', color='blue',
+                       ecolor='lightgray', elinewidth=3, capsize=0, transform=trans1)
+    ppv_hist = plt.errorbar(data_hist["TargetModel"], data_hist["TPRateSynMean"],
+                       yerr=data_hist["TPRateSynSD"], fmt='o', color='red',
+                       ecolor='lightgray', elinewidth=3, capsize=0, transform=trans2)
+    ppv_naive = plt.errorbar(data_naive["TargetModel"], data_naive["TPRateSynMean"],
+                       yerr=data_naive["TPRateSynSD"], fmt='o', color='black',
+                       ecolor='lightgray', elinewidth=3, capsize=0, transform=trans3)
+    plt.title(f"Memebership attack average across targets: True Positive Rate (Recall)")
+    ppv_cor.set_label("TPR (Correlation Feature Set)")
+    ppv_hist.set_label("TPR (Histogram Feature Set)")
+    ppv_naive.set_label("TPR (Naive Feature Set)")
+    ax.legend(loc='best')
+    plt.xlabel("Generative mechanism")
+    plt.ylabel("Score")
+    ax.tick_params(axis='x', rotation=30)
+    plt.tight_layout()
+    plt.savefig(f'tests/output_plots/linkage_overall_TPR.pdf')
+
+
+def errorplots_linkage_overall_precision(df):
+    """Plot linkage overall precision for all targets (for all feature set methods)"""
+    data_corr = df[df["FeatureSet"] == "Correlations"]
+    data_hist = df[df["FeatureSet"] == "Histogram"]
+    data_naive = df[df["FeatureSet"] == "Naive"]
+    fig, ax = plt.subplots()
+
+    trans1 = Affine2D().translate(-0.1, 0.0) + ax.transData
+    trans2 = Affine2D().translate(0.0, 0.0) + ax.transData
+    trans3 = Affine2D().translate(0.1, 0.0) + ax.transData
+
+    ppv_cor = plt.errorbar(data_corr["TargetModel"], data_corr["PPVRateSynMean"],
+                       yerr=data_corr["PPVRateSynSD"], fmt='o', color='blue',
+                       ecolor='lightgray', elinewidth=3, capsize=0, transform=trans1)
+    ppv_hist = plt.errorbar(data_hist["TargetModel"], data_hist["PPVRateSynMean"],
+                       yerr=data_hist["PPVRateSynSD"], fmt='o', color='red',
+                       ecolor='lightgray', elinewidth=3, capsize=0, transform=trans2)
+    ppv_naive = plt.errorbar(data_naive["TargetModel"], data_naive["PPVRateSynMean"],
+                       yerr=data_naive["PPVRateSynSD"], fmt='o', color='black',
+                       ecolor='lightgray', elinewidth=3, capsize=0, transform=trans3)
+    plt.title(f"Memebership attack average across targets: Positive Predictive Value (Precision)")
+    ppv_cor.set_label("PPV (Correlation Feature Set)")
+    ppv_hist.set_label("PPV (Histogram Feature Set)")
+    ppv_naive.set_label("PPV (Naive Feature Set)")
+    ax.legend(loc='best')
+    plt.xlabel("Generative mechanism")
+    plt.ylabel("Score")
+    ax.tick_params(axis='x', rotation=30)
+    plt.tight_layout()
+    plt.savefig(f'tests/output_plots/linkage_overall_PPV.pdf')
+
+
 def errorplots_utility_classification(df, label):
     """Plot classification metrics for feature: label"""
     data = df[df["LabelVar"] == label]
@@ -773,6 +900,9 @@ def main():
     linkage_per_target = linkage_per_target.reset_index()
     linkage_per_target.columns = [''.join(col) for col in linkage_per_target.columns]
     linkage_per_target = linkage_per_target[linkage_per_target.TargetModel != "IndependentHistogram"]
+    linkage_overall = linkage_overall.reset_index()
+    linkage_overall.columns = [''.join(col) for col in linkage_overall.columns]
+    linkage_overall = linkage_overall[linkage_overall.TargetModel != "IndependentHistogram"]
     utility_classification_overall = utility_classification_overall.reset_index()
     utility_classification_overall.columns = [''.join(col) for col in utility_classification_overall.columns]
     utility_classification_overall = utility_classification_overall[utility_classification_overall.TargetModel != "IndependentHistogram"]
@@ -793,12 +923,18 @@ def main():
         for tid in runconfig["Targets"]:
             errorplots_inference_per_target_acc(inference_per_target, sa, tid, hash)
 
-    # Plot linkage performance plots
+    # Plot linkage per target performance plots
     for tid in runconfig["Targets"]:
         errorplots_linkage_per_target_acc(linkage_per_target, tid, hash)
         errorplots_linkage_per_target_f1(linkage_per_target, tid, hash)
         errorplots_linkage_per_target_recall(linkage_per_target, tid, hash)
         errorplots_linkage_per_target_precision(linkage_per_target, tid, hash)
+
+    # Plot linkage overall performance plots
+    errorplots_linkage_overall_accuracy(linkage_overall)
+    errorplots_linkage_overall_f1(linkage_overall)
+    errorplots_linkage_overall_recall(linkage_overall)
+    errorplots_linkage_overall_precision(linkage_overall)
 
     # Plot utility (classification) plots
     for label in runconfig_utility["utilityTasks"]["RandForestClass"]:
