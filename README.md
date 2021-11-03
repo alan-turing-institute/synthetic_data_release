@@ -14,9 +14,9 @@ the CCHIC team in UCLH and The Alan Turing Institute
 aiming to improve the CCHIC service by exploring new ways that data releases can happen, 
 specifically via synthetic data, including an exploration of the tradeoffs between utility and privacy. UCLH has received approval from the CCHIC governing body to evaluate the existing anonymisation processes and other data publishing approaches, such as privacy-preserving generative models and synthetic datasets. This work was performed under the authority and supervision of the leads for the NIHR HIC Critical Care theme (UCLH) at all times.
 
-Results of the investigation are contained in [this report](./report/QUIPP_CCHIC.pdf). In order to reproduce the results of the experiments follow the steps listed below.
+The outcomes of the investigation are documented in [this report](./report/QUIPP_CCHIC.pdf). Follow the steps below to reproduce the results/figures presented in the report.
 
-The code has largely been developed in the parent repository by the authors of the paper 
+The codes have largely been developed in the parent repository by the authors of the paper 
 "Synthetic Data - Anonymisation Groundhog Day, Theresa Stadler, Bristena Oprisanu, and Carmela Troncoso, [arXiv](https://arxiv.org/abs/2011.07018), 2020".
 This repository contains changes to the framework to allow it to run within DSH and to model the types of attacks and 
 intruder assumptions which are interesting from the data owners' perspective.
