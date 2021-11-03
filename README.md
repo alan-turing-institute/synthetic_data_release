@@ -5,18 +5,20 @@ A practical framework to evaluate the privacy-utility tradeoff of synthetic data
 This fork has been adapted to work within the UCLH Data Safe Haven 
 ([DSH](https://www.ucl.ac.uk/isd/services/file-storage-sharing/data-safe-haven-dsh)) 
 environment to generate synthetic data that model the ICU data of the Critical Care Health 
-Informatics Collaborative (CCHIC) resource. CCHIC is a multi-centre intensive care database in the UK (details can be found 
+Informatics Collaborative (CCHIC) resource and assess their privacy and utility. CCHIC is a multi-centre intensive care database in the UK (details can be found 
 [here](https://discovery.ucl.ac.uk/id/eprint/10050778/)). 
 
 This repository is the result of a collaboration between 
 the CCHIC team in UCLH and The Alan Turing Institute 
 (working under the [QUIPP-CC-HIC project](https://github.com/alan-turing-institute/QUIPP-CC-HIC)), 
 aiming to improve the CCHIC service by exploring new ways that data releases can happen, 
-specifically via synthetic data, including an exploration of the tradeoffs between utility and privacy.
+specifically via synthetic data, including an exploration of the tradeoffs between utility and privacy. UCLH has received approval from the CCHIC governing body to evaluate the existing anonymisation processes and other data publishing approaches, such as privacy-preserving generative models and synthetic datasets. This work was performed under the authority and supervision of the leads for the NIHR HIC Critical Care theme (UCLH) at all times.
+
+Results of the investigation are contained in [this report](./report/QUIPP_CCHIC.pdf). In order to reproduce the results of the experiments follow the steps listed below.
 
 The code has largely been developed in the parent repository by the authors of the paper 
 "Synthetic Data - Anonymisation Groundhog Day, Theresa Stadler, Bristena Oprisanu, and Carmela Troncoso, [arXiv](https://arxiv.org/abs/2011.07018), 2020".
-This repository contains limited changes to the framework to allow it to run within DSH and to model the types of attacks and 
+This repository contains changes to the framework to allow it to run within DSH and to model the types of attacks and 
 intruder assumptions which are interesting from the data owners' perspective.
 
 # Attack models
@@ -85,9 +87,12 @@ export PYTHONPATH=$PYTHONPATH:`pwd`
 
 # Other steps to run with CCHIC data
 To run within DSH with the CCHIC data as the raw dataset, you first need to:
-- Run [this code](https://github.com/alan-turing-institute/QUIPP-CC-HIC/blob/main/quipp-cc-hic/synthesis/preprocess_data.py) within DSH. Refer to the [README on QUIPP-CC-HIC](https://github.com/alan-turing-institute/QUIPP-CC-HIC/blob/main/README.md). This will generate a dataset with the name `cchic_cleaned.csv` that you then need to place within the `/data` directory in this repo. 
+- Go to the [data extraction repository](https://github.com/alan-turing-institute/QUIPP-CC-HIC) and follow the instructions in the README.md to install dependencies and extract data using the two provided Python scripts within DSH. You will end up with a dataset with the name `cchic_cleaned.csv` that you then need to place within the `/data` directory in this repo. 
 - Place a .json metadata file with the name `cchic_cleaned.json` in the same directory as the dataset. 
-This file is not shared here as it might contain sensitive information and needs to be requested from one of the developers of this repo.
+This file is not shared here as it might contain sensitive information and needs to be requested from one of the leads of the CCHIC team.
+- Request from the CCHIC leads the following extra files:
+  - `hash.json`: This is a dictionary hash that converts patient ID labels to the letter IDs shown in the report. This should be placed in the root directory of this repo.
+  - `tests/inference/runconfig_cchic.json`; `tests/linkage/runconfig_cchic.json`; `tests/utility/runconfig_cchic.json`: These files are in the repo but they are missing the target IDs used when running the report's experiments. The CCHIC leads will be able to provide you with the versions used which contain the real target IDs. These should be replace the `.json` files under the `tests/` directory.
 
 # Running the privacy and utility evaluation
 
@@ -163,8 +168,8 @@ utility task
 The results file produced after successfully running the script is written to `tests/utility`.
 
 ### Summary and visualisations
-To generate summary tables from the two privacy evaluation and the utility evaluation and generate 
-the respective plots:
+To generate summary tables from the two privacy evaluation and the utility evaluation (under `tests/output_dataframes`) and also generate 
+the respective plots (under `tests/output_plots`):
 ```
-python summarise_cli.py -D data/cchic_cleaned -RCI tests/inference/runconfig_cchic -RCL tests/linkage/runconfig_cchic -RCU tests/utility/runconfig_cchic
+python summarise_cli.py -D data/cchic_cleaned -RCI tests/inference/runconfig_cchic -RCL tests/linkage/runconfig_cchic -RCU tests/utility/runconfig_cchic -H hash
 ```
