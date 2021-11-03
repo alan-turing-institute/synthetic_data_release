@@ -4,7 +4,7 @@ A practical framework to evaluate the privacy-utility tradeoff of synthetic data
 
 This fork has been adapted to work within the UCLH Data Safe Haven 
 ([DSH](https://www.ucl.ac.uk/isd/services/file-storage-sharing/data-safe-haven-dsh)) 
-environment in order to generate synthetic data that model the ICU data within the Critical Care Health 
+environment in order to generate synthetic data that model the ICU data of the Critical Care Health 
 Informatics Collaborative (CCHIC) resource. 
 
 CCHIC is an multi-centre intensive care database in the UK (details can be found 
