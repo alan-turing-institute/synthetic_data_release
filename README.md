@@ -4,23 +4,23 @@ A practical framework to evaluate the privacy-utility tradeoff of synthetic data
 
 This fork has been adapted to work within the UCLH Data Safe Haven 
 ([DSH](https://www.ucl.ac.uk/isd/services/file-storage-sharing/data-safe-haven-dsh)) 
-environment in order to generate synthetic data that model the ICU data of the Critical Care Health 
-Informatics Collaborative (CCHIC) resource. 
+environment to generate synthetic data that model the ICU data of the Critical Care Health 
+Informatics Collaborative (CCHIC) resource. CCHIC is a multi-centre intensive care database in the UK (details can be found 
+[here](https://discovery.ucl.ac.uk/id/eprint/10050778/)). 
 
-CCHIC is an multi-centre intensive care database in the UK (details can be found 
-[here](https://discovery.ucl.ac.uk/id/eprint/10050778/)). This repository is the result of a collaboration between 
+This repository is the result of a collaboration between 
 the CCHIC team in UCLH and The Alan Turing Institute 
-(working under the [QUIPP](see [this](https://github.com/alan-turing-institute/QUIPP-CC-HIC) project), 
+(working under the [QUIPP-CC-HIC project](https://github.com/alan-turing-institute/QUIPP-CC-HIC)), 
 aiming to improve the CCHIC service by exploring new ways that data releases can happen, 
 specifically via synthetic data, including an exploration of the tradeoffs between utility and privacy.
 
 The code has largely been developed in the parent repository by the authors of the paper 
 "Synthetic Data - Anonymisation Groundhog Day, Theresa Stadler, Bristena Oprisanu, and Carmela Troncoso, [arXiv](https://arxiv.org/abs/2011.07018), 2020".
-This repository contain limited changes to the framework to allow it to run within DSH and to model the types of attacks and 
+This repository contains limited changes to the framework to allow it to run within DSH and to model the types of attacks and 
 intruder assumptions which are interesting from the data owners' perspective.
 
 # Attack models
-The framework implements two type of intruder attack models which assume a motivated intruder with specific prior knowledge 
+The framework implements two types of intruder attack models which assume a motivated intruder with specific prior knowledge 
 and assess their probability of success when given a synthetic (or sanitised or raw) dataset:
 - A linkage attack modelled as a membership inference attack (`MIAAttackClassifier` in the code). It assumes the intruder has 
   access to a sample from the raw dataset, a set of target records and a synthetic (or other anonymised dataset) and attempts 
@@ -85,15 +85,14 @@ export PYTHONPATH=$PYTHONPATH:`pwd`
 
 # Other steps to run with CCHIC data
 To run within DSH with the CCHIC data as the raw dataset, you first need to:
-- Run [this](https://github.com/alan-turing-institute/QUIPP-CC-HIC/blob/develop/quipp-cc-hic/synthesis/synthesis_pipeline.ipynb) 
-notebook within DSH. This will generate a dataset with the name `cchic_cleaned.csv` that you then need to place within the `/data` directory in this repo. 
+- Run [this code](https://github.com/alan-turing-institute/QUIPP-CC-HIC/blob/main/quipp-cc-hic/synthesis/preprocess_data.py) within DSH. Refer to the [README on QUIPP-CC-HIC](https://github.com/alan-turing-institute/QUIPP-CC-HIC/blob/main/README.md). This will generate a dataset with the name `cchic_cleaned.csv` that you then need to place within the `/data` directory in this repo. 
 - Place a .json metadata file with the name `cchic_cleaned.json` in the same directory as the dataset. 
 This file is not shared here as it might contain sensitive information and needs to be requested from one of the developers of this repo.
 
 # Running the privacy and utility evaluation
 
 ### Membership inference
-To run a privacy evaluation with respect to the privacy concern of linkability (membership inference)) you can run:
+To run a privacy evaluation with respect to the privacy concern of linkability (membership inference):
 ```
 python linkage_cli.py -D data/cchic_cleaned -RC tests/linkage/runconfig_cchic.json -O tests/linkage
 ```
@@ -115,7 +114,7 @@ parameters of the evaluation (more details can be found in the paper):
 The results file produced after successfully running the script is written to `tests/linkage`. 
 
 ### Attribute inference
-To run a privacy evaluation with respect to the privacy concern of attribute inference you can run:
+To run a privacy evaluation with respect to the privacy concern of attribute inference:
 ```
 python inference_cli.py -D data/cchic_cleaned -RC tests/inference/runconfig_cchic.json -O tests/inference
 ```
@@ -141,7 +140,7 @@ The results file produced after successfully running the script is written to `t
 
 ### Utility
 To run a utility evaluation with respect to a simple classification task and some univariate utility measures 
-(variable means and medians for continuous variables and and frequencies for categorical variables) run:
+(means and medians for continuous variables and and frequencies for categorical variables) run:
 ```
 python utility_cli.py -D data/cchic_cleaned -RC tests/utility/runconfig_cchic.json -O tests/utility
 ```
@@ -164,8 +163,8 @@ utility task
 The results file produced after successfully running the script is written to `tests/utility`.
 
 ### Summary and visualisations
-In order to generate summary tables from the two privacy evaluation and the utility evaluation and generate 
-the respective plots, run the following:
+To generate summary tables from the two privacy evaluation and the utility evaluation and generate 
+the respective plots:
 ```
 python summarise_cli.py -D data/cchic_cleaned -RCI tests/inference/runconfig_cchic -RCL tests/linkage/runconfig_cchic -RCU tests/utility/runconfig_cchic
 ```
