@@ -92,7 +92,7 @@ To run within DSH with the CCHIC data as the raw dataset, you first need to:
 This file is not shared here as it might contain sensitive information and needs to be requested from one of the leads of the CCHIC team.
 - Request from the CCHIC leads the following extra files:
   - `hash.json`: This is a dictionary hash that converts patient ID labels to the letter IDs shown in the report. This should be placed in the root directory of this repo.
-  - `tests/inference/runconfig_cchic.json`; `tests/linkage/runconfig_cchic.json`; `tests/utility/runconfig_cchic.json`: These files are in the repo but they are missing the target IDs used when running the report's experiments. The CCHIC leads will be able to provide you with the versions used which contain the real target IDs. These should be replace the `.json` files under the `tests/` directory.
+  - `tests/inference/runconfig_cchic.json`; `tests/linkage/runconfig_cchic.json`; `tests/utility/runconfig_cchic.json`: These files are in the repo but they are missing the target IDs used when running the report's experiments. The files used for attribute inference is also missing the real prior values for HIV and CIR prevalence. The CCHIC leads will be able to provide you with the versions used which contain the real target IDs and prior values. These should be replace the `.json` files under the `tests/` directory.
 
 # Running the privacy and utility evaluation
 
