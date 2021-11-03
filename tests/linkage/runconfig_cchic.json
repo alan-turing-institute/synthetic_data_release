@@ -8,7 +8,7 @@
   "nSynT": 5,
   "nTargets": 0,
   "probIn": 0.5,
-  "Targets": ["ID83", "ID9193", "ID16365", "ID26150", "ID29344", "ID42324", "ID9195", "ID270", "ID17546", "ID17763", "ID35969", "ID35100", "ID13903", "ID725"],
+  "Targets": [],
   "generativeModels": {
     "IndependentHistogram": [[25]],
     "PrivBayes": [[25, 2, 0.01], [25, 2, 0.1], [25, 2, 10.0], [25, 2, 30.0]]
