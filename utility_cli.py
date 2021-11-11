@@ -3,6 +3,7 @@ Command-line interface for running utility evaluation
 """
 
 import json
+import numpy as np
 
 from os import mkdir, path
 from numpy import mean
@@ -68,7 +69,7 @@ def main():
     ########################
     # Train test split - if neither 'dataFilter' or 'train_fraction' are
     # in the json file, KeyError is thrown
-    # When using 'train_fraction', 'Targets' and 'TestRecords' should be left empty
+    # When using 'train_fraction': 'Targets' and 'TestRecords' should be left empty
     if runconfig.get('dataFilter') is None:
         rawTrain = rawPop.sample(frac=runconfig['train_fraction'])
         rawTest = rawPop.loc[~rawPop.index.isin(rawTrain.index)]
@@ -148,6 +149,7 @@ def main():
     resultsAggUtility = {ut.__name__: {gm.__name__: {'TargetID': [],
                                                      'Accuracy': [],
                                                      'F1': [],
+                                                     'F1Macro': [],
                                                      'VariableMeasures': {'Means': [], 'Medians': [],
                                                                           'Frequencies': [], 'Correlations': []}}
                                        for gm in gmList + sanList} for ut in utilityTasks}
@@ -158,6 +160,7 @@ def main():
         resultsAggUtility[ut.__name__]['Raw'] = {'TargetID': [],
                                                  'Accuracy': [],
                                                  'F1': [],
+                                                 'F1Macro': [],
                                                  'VariableMeasures': {'Means': [], 'Medians': [],
                                                                       'Frequencies': [], 'Correlations': []}}
 
@@ -176,11 +179,20 @@ def main():
             predErrorTargets = []
             predErrorAggr = []
             predF1Aggr = []
+            predF1MacroAggr = []
             for _ in range(runconfig['nSynT']):
                 ut.train(rawTout)
                 predErrorTargets.append(ut.evaluate(testRecords))
                 predErrorAggr.append(ut.evaluate(rawTest))
-                predF1Aggr.append(ut.f1(rawTest))
+                pl = runconfig.get("positive_label")
+                if pl is not None:
+                    if pl.get(ut.labelCol) is not None:
+                        predF1Aggr.append(ut.f1(rawTest, positive_label=pl.get(ut.labelCol)))
+                    else:
+                        predF1Aggr.append(np.nan)
+                else:
+                    predF1Aggr.append(np.nan)
+                predF1MacroAggr.append(ut.f1macro(rawTest))
 
             resultsTargetUtility[ut.__name__]['Raw'][nr]['OUT'] = {
                 'TestRecordID': testRecordIDs,
@@ -190,6 +202,7 @@ def main():
             resultsAggUtility[ut.__name__]['Raw']['TargetID'].append('OUT')
             resultsAggUtility[ut.__name__]['Raw']['Accuracy'].append(mean(predErrorAggr))
             resultsAggUtility[ut.__name__]['Raw']['F1'].append(mean(predF1Aggr))
+            resultsAggUtility[ut.__name__]['Raw']['F1Macro'].append(mean(predF1MacroAggr))
             resultsAggUtility[ut.__name__]['Raw']['VariableMeasures']["Means"].append(
                 {
                 i['name']: rawTout[i['name']].mean()
@@ -211,9 +224,6 @@ def main():
                 if i['name'] in categorical_variables
                 }
             )
-            # resultsAggUtility[ut.__name__]['Raw']['VariableMeasures']["Correlations"].append(
-            #     associations(rawTout, nominal_columns=categorical_variables)
-            # )
 
         # Get utility from raw with each target
         for tid in targetIDs:
@@ -224,11 +234,20 @@ def main():
                 predErrorTargets = []
                 predErrorAggr = []
                 predF1Aggr = []
+                predF1MacroAggr = []
                 for _ in range(runconfig['nSynT']):
                     ut.train(rawIn)
                     predErrorTargets.append(ut.evaluate(testRecords))
                     predErrorAggr.append(ut.evaluate(rawTest))
-                    predF1Aggr.append(ut.f1(rawTest))
+                    pl = runconfig.get("positive_label")
+                    if pl is not None:
+                        if pl.get(ut.labelCol) is not None:
+                            predF1Aggr.append(ut.f1(rawTest, positive_label=pl.get(ut.labelCol)))
+                        else:
+                            predF1Aggr.append(np.nan)
+                    else:
+                        predF1Aggr.append(np.nan)
+                    predF1MacroAggr.append(ut.f1macro(rawTest))
 
                 resultsTargetUtility[ut.__name__]['Raw'][nr][tid] = {
                     'TestRecordID': testRecordIDs,
@@ -238,6 +257,7 @@ def main():
                 resultsAggUtility[ut.__name__]['Raw']['TargetID'].append(tid)
                 resultsAggUtility[ut.__name__]['Raw']['Accuracy'].append(mean(predErrorAggr))
                 resultsAggUtility[ut.__name__]['Raw']['F1'].append(mean(predF1Aggr))
+                resultsAggUtility[ut.__name__]['Raw']['F1Macro'].append(mean(predF1MacroAggr))
                 resultsAggUtility[ut.__name__]['Raw']['VariableMeasures']["Means"].append(
                     {
                         i['name']: rawIn[i['name']].mean()
@@ -259,9 +279,6 @@ def main():
                         if i['name'] in categorical_variables
                     }
                 )
-                # resultsAggUtility[ut.__name__]['Raw']['VariableMeasures']["Correlations"].append(
-                #     associations(rawIn, nominal_columns=categorical_variables)
-                # )
 
         LOGGER.info('Finished: Utility evaluation on Raw.')
 
@@ -277,11 +294,20 @@ def main():
                 predErrorTargets = []
                 predErrorAggr = []
                 predF1Aggr = []
+                predF1MacroAggr = []
                 for syn in synTwithoutTarget:
                     ut.train(syn)
                     predErrorTargets.append(ut.evaluate(testRecords))
                     predErrorAggr.append(ut.evaluate(rawTest))
-                    predF1Aggr.append(ut.f1(rawTest))
+                    pl = runconfig.get("positive_label")
+                    if pl is not None:
+                        if pl.get(ut.labelCol) is not None:
+                            predF1Aggr.append(ut.f1(rawTest, positive_label=pl.get(ut.labelCol)))
+                        else:
+                            predF1Aggr.append(np.nan)
+                    else:
+                        predF1Aggr.append(np.nan)
+                    predF1MacroAggr.append(ut.f1macro(rawTest))
 
                 resultsTargetUtility[ut.__name__][GenModel.__name__][nr]['OUT'] = {
                     'TestRecordID': testRecordIDs,
@@ -291,6 +317,7 @@ def main():
                 resultsAggUtility[ut.__name__][GenModel.__name__]['TargetID'].append('OUT')
                 resultsAggUtility[ut.__name__][GenModel.__name__]['Accuracy'].append(mean(predErrorAggr))
                 resultsAggUtility[ut.__name__][GenModel.__name__]['F1'].append(mean(predF1Aggr))
+                resultsAggUtility[ut.__name__][GenModel.__name__]['F1Macro'].append(mean(predF1MacroAggr))
                 resultsAggUtility[ut.__name__][GenModel.__name__]['VariableMeasures']["Means"].append(
                     {
                         i['name']: syn[i['name']].mean()
@@ -312,9 +339,6 @@ def main():
                         if i['name'] in categorical_variables
                     }
                 )
-                # resultsAggUtility[ut.__name__][GenModel.__name__]['VariableMeasures']["Correlations"].append(
-                #     associations(syn, nominal_columns=categorical_variables)
-                # )
 
             for tid in targetIDs:
                 LOGGER.info(f'Target: {tid}')
@@ -329,11 +353,20 @@ def main():
                     predErrorTargets = []
                     predErrorAggr = []
                     predF1Aggr = []
+                    predF1MacroAggr = []
                     for syn in synTwithTarget:
                         ut.train(syn)
                         predErrorTargets.append(ut.evaluate(testRecords))
                         predErrorAggr.append(ut.evaluate(rawTest))
-                        predF1Aggr.append(ut.f1(rawTest))
+                        pl = runconfig.get("positive_label")
+                        if pl is not None:
+                            if pl.get(ut.labelCol) is not None:
+                                predF1Aggr.append(ut.f1(rawTest, positive_label=pl.get(ut.labelCol)))
+                            else:
+                                predF1Aggr.append(np.nan)
+                        else:
+                            predF1Aggr.append(np.nan)
+                        predF1MacroAggr.append(ut.f1macro(rawTest))
 
                     resultsTargetUtility[ut.__name__][GenModel.__name__][nr][tid] = {
                         'TestRecordID': testRecordIDs,
@@ -343,6 +376,7 @@ def main():
                     resultsAggUtility[ut.__name__][GenModel.__name__]['TargetID'].append(tid)
                     resultsAggUtility[ut.__name__][GenModel.__name__]['Accuracy'].append(mean(predErrorAggr))
                     resultsAggUtility[ut.__name__][GenModel.__name__]['F1'].append(mean(predF1Aggr))
+                    resultsAggUtility[ut.__name__][GenModel.__name__]['F1Macro'].append(mean(predF1MacroAggr))
                     resultsAggUtility[ut.__name__][GenModel.__name__]['VariableMeasures']["Means"].append(
                         {
                             i['name']: syn[i['name']].mean()
@@ -364,9 +398,6 @@ def main():
                             if i['name'] in categorical_variables
                         }
                     )
-                    # resultsAggUtility[ut.__name__][GenModel.__name__]['VariableMeasures']["Correlations"].append(
-                    #     associations(syn, nominal_columns=categorical_variables)
-                    # )
 
             del synTwithoutTarget, synTwithTarget
 
@@ -382,11 +413,20 @@ def main():
                 predErrorTargets = []
                 predErrorAggr = []
                 predF1Aggr = []
+                predF1MacroAggr = []
                 for _ in range(runconfig['nSynT']):
                     ut.train(sanOut)
                     predErrorTargets.append(ut.evaluate(testRecords))
                     predErrorAggr.append(ut.evaluate(rawTest))
-                    predF1Aggr.append(ut.f1(rawTest))
+                    pl = runconfig.get("positive_label")
+                    if pl is not None:
+                        if pl.get(ut.labelCol) is not None:
+                            predF1Aggr.append(ut.f1(rawTest, positive_label=pl.get(ut.labelCol)))
+                        else:
+                            predF1Aggr.append(np.nan)
+                    else:
+                        predF1Aggr.append(np.nan)
+                    predF1MacroAggr.append(ut.f1macro(rawTest))
 
                 resultsTargetUtility[ut.__name__][San.__name__][nr]['OUT'] = {
                     'TestRecordID': testRecordIDs,
@@ -396,6 +436,7 @@ def main():
                 resultsAggUtility[ut.__name__][San.__name__]['TargetID'].append('OUT')
                 resultsAggUtility[ut.__name__][San.__name__]['Accuracy'].append(mean(predErrorAggr))
                 resultsAggUtility[ut.__name__][San.__name__]['F1'].append(mean(predF1Aggr))
+                resultsAggUtility[ut.__name__][San.__name__]['F1Macro'].append(mean(predF1MacroAggr))
                 resultsAggUtility[ut.__name__][San.__name__]['VariableMeasures']["Means"].append(
                     {
                         i['name']: sanOut[i['name']].mean()
@@ -417,9 +458,6 @@ def main():
                         if i['name'] in categorical_variables
                     }
                 )
-                # resultsAggUtility[ut.__name__][San.__name__]['VariableMeasures']["Correlations"].append(
-                #     associations(sanOut, nominal_columns=categorical_variables)
-                # )
 
             for tid in targetIDs:
                 LOGGER.info(f'Target: {tid}')
@@ -432,11 +470,20 @@ def main():
                     predErrorTargets = []
                     predErrorAggr = []
                     predF1Aggr = []
+                    predF1MacroAggr = []
                     for _ in range(runconfig['nSynT']):
                         ut.train(sanIn)
                         predErrorTargets.append(ut.evaluate(testRecords))
                         predErrorAggr.append(ut.evaluate(rawTest))
-                        predF1Aggr.append(ut.f1(rawTest))
+                        pl = runconfig.get("positive_label")
+                        if pl is not None:
+                            if pl.get(ut.labelCol) is not None:
+                                predF1Aggr.append(ut.f1(rawTest, positive_label=pl.get(ut.labelCol)))
+                            else:
+                                predF1Aggr.append(np.nan)
+                        else:
+                            predF1Aggr.append(np.nan)
+                        predF1MacroAggr.append(ut.f1macro(rawTest))
 
                     resultsTargetUtility[ut.__name__][San.__name__][nr][tid] = {
                         'TestRecordID': testRecordIDs,
@@ -446,6 +493,7 @@ def main():
                     resultsAggUtility[ut.__name__][San.__name__]['TargetID'].append(tid)
                     resultsAggUtility[ut.__name__][San.__name__]['Accuracy'].append(mean(predErrorAggr))
                     resultsAggUtility[ut.__name__][San.__name__]['F1'].append(mean(predF1Aggr))
+                    resultsAggUtility[ut.__name__][San.__name__]['F1Macro'].append(mean(predF1MacroAggr))
                     resultsAggUtility[ut.__name__][San.__name__]['VariableMeasures']["Means"].append(
                         {
                             i['name']: sanIn[i['name']].mean()
@@ -467,9 +515,6 @@ def main():
                             if i['name'] in categorical_variables
                         }
                     )
-                    # resultsAggUtility[ut.__name__][San.__name__]['VariableMeasures']["Correlations"].append(
-                    #     associations(sanIn, nominal_columns=categorical_variables)
-                    # )
 
             del sanOut, sanIn
 

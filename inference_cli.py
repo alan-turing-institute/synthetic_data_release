@@ -6,7 +6,9 @@ import json
 
 from os import mkdir, path
 from numpy.random import choice, seed
+from numpy import nan
 from argparse import ArgumentParser
+from sklearn.metrics import f1_score, accuracy_score, balanced_accuracy_score, recall_score, precision_score
 
 from utils.datagen import load_s3_data_as_df, load_local_data_as_df
 from utils.utils import json_numpy_serialzer
@@ -146,10 +148,46 @@ def main():
                 guess = Attack.attack(targetAux, attemptLinkage=True, data=rawTout)
                 pCorrect = Attack.get_likelihood(targetAux, targetSecret, attemptLinkage=True, data=rawTout)
 
+                # predict all rows in the raw dataset (not just target)
+                guess_all = Attack.attack(rawTout.loc[:, Attack.knownAttributes], attemptLinkage=False,
+                                          data=None, guess_all=True)
+                # calculate metrics for all rows
+                if len(rawTout.loc[:, Attack.sensitiveAttribute].unique()) > 2:
+                    f1_all = nan
+                    f1_all_macro = f1_score(rawTout.loc[:, Attack.sensitiveAttribute], guess_all, average='macro')
+                    f1_all_micro = f1_score(rawTout.loc[:, Attack.sensitiveAttribute], guess_all, average='micro')
+                    tprate_all = recall_score(rawTout.loc[:, Attack.sensitiveAttribute], guess_all,
+                                              labels=[runconfig['positive_label'][Attack.sensitiveAttribute]],
+                                              average='macro')
+                    ppvrate_all = precision_score(rawTout.loc[:, Attack.sensitiveAttribute], guess_all,
+                                                  labels=[runconfig['positive_label'][Attack.sensitiveAttribute]],
+                                                  average='macro')
+                else:
+                    f1_all = f1_score(rawTout.loc[:, Attack.sensitiveAttribute], guess_all,
+                                      pos_label=runconfig['positive_label'][Attack.sensitiveAttribute], average='binary')
+                    f1_all_macro = f1_score(rawTout.loc[:, Attack.sensitiveAttribute], guess_all, average='macro')
+                    f1_all_micro = f1_score(rawTout.loc[:, Attack.sensitiveAttribute], guess_all, average='micro')
+                    tprate_all = recall_score(rawTout.loc[:, Attack.sensitiveAttribute], guess_all,
+                                              pos_label=runconfig['positive_label'][Attack.sensitiveAttribute],
+                                              average='binary')
+                    ppvrate_all = precision_score(rawTout.loc[:, Attack.sensitiveAttribute], guess_all,
+                                                  pos_label=runconfig['positive_label'][Attack.sensitiveAttribute],
+                                                  average='binary')
+                acc_all = accuracy_score(rawTout.loc[:, Attack.sensitiveAttribute], guess_all)
+                acc_balanced_all = balanced_accuracy_score(rawTout.loc[:, Attack.sensitiveAttribute], guess_all)
+
+
                 resultsTargetPrivacy[tid][sa]['Raw'][nr] = {
                     'AttackerGuess': [guess],
                     'ProbCorrect': [pCorrect],
-                    'TargetPresence': [LABEL_OUT]
+                    'TargetPresence': [LABEL_OUT],
+                    'GuessAllF1': [f1_all],
+                    'GuessAllF1macro': [f1_all_macro],
+                    'GuessAllF1micro': [f1_all_micro],
+                    'GuessAllAcc': [acc_all],
+                    'GuessAllAccBal': [acc_balanced_all],
+                    'GuessAllTP': [tprate_all],
+                    'GuessAllPPV': [ppvrate_all]
                 }
 
         for tid in targetIDs:
@@ -163,9 +201,44 @@ def main():
                 guess = Attack.attack(targetAux, attemptLinkage=True, data=rawTin)
                 pCorrect = Attack.get_likelihood(targetAux, targetSecret, attemptLinkage=True, data=rawTin)
 
+                # predict all rows in the raw dataset (not just target)
+                guess_all = Attack.attack(rawTin.loc[:, Attack.knownAttributes], attemptLinkage=False,
+                                          data=None, guess_all=True)
+                # calculate metrics for all rows
+                if len(rawTin.loc[:, Attack.sensitiveAttribute].unique()) > 2:
+                    f1_all = nan
+                    f1_all_macro = f1_score(rawTin.loc[:, Attack.sensitiveAttribute], guess_all, average='macro')
+                    f1_all_micro = f1_score(rawTin.loc[:, Attack.sensitiveAttribute], guess_all, average='micro')
+                    tprate_all = recall_score(rawTin.loc[:, Attack.sensitiveAttribute], guess_all,
+                                              labels=[runconfig['positive_label'][Attack.sensitiveAttribute]],
+                                              average='macro')
+                    ppvrate_all = precision_score(rawTin.loc[:, Attack.sensitiveAttribute], guess_all,
+                                                  labels=[runconfig['positive_label'][Attack.sensitiveAttribute]],
+                                                  average='macro')
+                else:
+                    f1_all = f1_score(rawTin.loc[:, Attack.sensitiveAttribute], guess_all,
+                                      pos_label=runconfig['positive_label'][Attack.sensitiveAttribute], average='binary')
+                    f1_all_macro = f1_score(rawTin.loc[:, Attack.sensitiveAttribute], guess_all, average='macro')
+                    f1_all_micro = f1_score(rawTin.loc[:, Attack.sensitiveAttribute], guess_all, average='micro')
+                    tprate_all = recall_score(rawTin.loc[:, Attack.sensitiveAttribute], guess_all,
+                                              pos_label=runconfig['positive_label'][Attack.sensitiveAttribute],
+                                              average='binary')
+                    ppvrate_all = precision_score(rawTin.loc[:, Attack.sensitiveAttribute], guess_all,
+                                                  pos_label=runconfig['positive_label'][Attack.sensitiveAttribute],
+                                                  average='binary')
+                acc_all = accuracy_score(rawTin.loc[:, Attack.sensitiveAttribute], guess_all)
+                acc_balanced_all = balanced_accuracy_score(rawTin.loc[:, Attack.sensitiveAttribute], guess_all)
+
                 resultsTargetPrivacy[tid][sa]['Raw'][nr]['AttackerGuess'].append(guess)
                 resultsTargetPrivacy[tid][sa]['Raw'][nr]['ProbCorrect'].append(pCorrect)
                 resultsTargetPrivacy[tid][sa]['Raw'][nr]['TargetPresence'].append(LABEL_IN)
+                resultsTargetPrivacy[tid][sa]['Raw'][nr]['GuessAllF1'].append(f1_all)
+                resultsTargetPrivacy[tid][sa]['Raw'][nr]['GuessAllF1macro'].append(f1_all_macro)
+                resultsTargetPrivacy[tid][sa]['Raw'][nr]['GuessAllF1micro'].append(f1_all_micro)
+                resultsTargetPrivacy[tid][sa]['Raw'][nr]['GuessAllAcc'].append(acc_all)
+                resultsTargetPrivacy[tid][sa]['Raw'][nr]['GuessAllAccBal'].append(acc_balanced_all)
+                resultsTargetPrivacy[tid][sa]['Raw'][nr]['GuessAllTP'].append(tprate_all)
+                resultsTargetPrivacy[tid][sa]['Raw'][nr]['GuessAllPPV'].append(ppvrate_all)
 
         ##### Assess advantage Syn
         for GenModel in gmList:
@@ -178,7 +251,14 @@ def main():
                     resultsTargetPrivacy[tid][sa][GenModel.__name__][nr] = {
                         'AttackerGuess': [],
                         'ProbCorrect': [],
-                        'TargetPresence': [LABEL_OUT for _ in range(runconfig['nSynT'])]
+                        'TargetPresence': [LABEL_OUT for _ in range(runconfig['nSynT'])],
+                        'GuessAllF1': [],
+                        'GuessAllF1macro': [],
+                        'GuessAllF1micro': [],
+                        'GuessAllAcc': [],
+                        'GuessAllAccBal': [],
+                        'GuessAllTP': [],
+                        'GuessAllPPV': []
                     }
 
                 for syn in synTwithoutTarget:
@@ -192,8 +272,48 @@ def main():
                         guess = Attack.attack(targetAux)
                         pCorrect = Attack.get_likelihood(targetAux, targetSecret)
 
+                        # predict all rows in the raw dataset (not just target)
+                        guess_all = Attack.attack(rawTout.loc[:, Attack.knownAttributes], attemptLinkage=False,
+                                                  data=None, guess_all=True)
+                        # calculate metrics for all rows
+                        if len(rawTout.loc[:, Attack.sensitiveAttribute].unique()) > 2:
+                            f1_all = nan
+                            f1_all_macro = f1_score(rawTout.loc[:, Attack.sensitiveAttribute], guess_all, average='macro')
+                            f1_all_micro = f1_score(rawTout.loc[:, Attack.sensitiveAttribute], guess_all,
+                                                    average='micro')
+                            tprate_all = recall_score(rawTout.loc[:, Attack.sensitiveAttribute], guess_all,
+                                                      labels=[runconfig['positive_label'][Attack.sensitiveAttribute]],
+                                                      average='macro')
+                            ppvrate_all = precision_score(rawTout.loc[:, Attack.sensitiveAttribute], guess_all,
+                                                          labels=[
+                                                              runconfig['positive_label'][Attack.sensitiveAttribute]],
+                                                          average='macro')
+                        else:
+                            f1_all = f1_score(rawTout.loc[:, Attack.sensitiveAttribute], guess_all,
+                                              pos_label=runconfig['positive_label'][Attack.sensitiveAttribute],
+                                              average='binary')
+                            f1_all_macro = f1_score(rawTout.loc[:, Attack.sensitiveAttribute], guess_all, average='macro')
+                            f1_all_micro = f1_score(rawTout.loc[:, Attack.sensitiveAttribute], guess_all,
+                                                    average='micro')
+                            tprate_all = recall_score(rawTout.loc[:, Attack.sensitiveAttribute], guess_all,
+                                                      pos_label=runconfig['positive_label'][Attack.sensitiveAttribute],
+                                                      average='binary')
+                            ppvrate_all = precision_score(rawTout.loc[:, Attack.sensitiveAttribute], guess_all,
+                                                          pos_label=runconfig['positive_label'][
+                                                              Attack.sensitiveAttribute],
+                                                          average='binary')
+                        acc_all = accuracy_score(rawTout.loc[:, Attack.sensitiveAttribute], guess_all)
+                        acc_balanced_all = balanced_accuracy_score(rawTout.loc[:, Attack.sensitiveAttribute], guess_all)
+
                         resultsTargetPrivacy[tid][sa][GenModel.__name__][nr]['AttackerGuess'].append(guess)
                         resultsTargetPrivacy[tid][sa][GenModel.__name__][nr]['ProbCorrect'].append(pCorrect)
+                        resultsTargetPrivacy[tid][sa][GenModel.__name__][nr]['GuessAllF1'].append(f1_all)
+                        resultsTargetPrivacy[tid][sa][GenModel.__name__][nr]['GuessAllF1macro'].append(f1_all_macro)
+                        resultsTargetPrivacy[tid][sa][GenModel.__name__][nr]['GuessAllF1micro'].append(f1_all_micro)
+                        resultsTargetPrivacy[tid][sa][GenModel.__name__][nr]['GuessAllAcc'].append(acc_all)
+                        resultsTargetPrivacy[tid][sa][GenModel.__name__][nr]['GuessAllAccBal'].append(acc_balanced_all)
+                        resultsTargetPrivacy[tid][sa][GenModel.__name__][nr]['GuessAllTP'].append(tprate_all)
+                        resultsTargetPrivacy[tid][sa][GenModel.__name__][nr]['GuessAllPPV'].append(ppvrate_all)
 
             del synTwithoutTarget
 
@@ -215,9 +335,50 @@ def main():
                         guess = Attack.attack(targetAux)
                         pCorrect = Attack.get_likelihood(targetAux, targetSecret)
 
+                        # predict all rows in the raw dataset (not just target)
+                        guess_all = Attack.attack(rawTin.loc[:, Attack.knownAttributes], attemptLinkage=False,
+                                                  data=None, guess_all=True)
+                        # calculate metrics for all rows
+                        if len(rawTin.loc[:, Attack.sensitiveAttribute].unique()) > 2:
+                            f1_all = nan
+                            f1_all_macro = f1_score(rawTin.loc[:, Attack.sensitiveAttribute], guess_all, average='macro')
+                            f1_all_micro = f1_score(rawTin.loc[:, Attack.sensitiveAttribute], guess_all,
+                                                    average='micro')
+                            tprate_all = recall_score(rawTin.loc[:, Attack.sensitiveAttribute], guess_all,
+                                                      labels=[runconfig['positive_label'][Attack.sensitiveAttribute]],
+                                                      average='macro')
+                            ppvrate_all = precision_score(rawTin.loc[:, Attack.sensitiveAttribute], guess_all,
+                                                          labels=[
+                                                              runconfig['positive_label'][Attack.sensitiveAttribute]],
+                                                          average='macro')
+                        else:
+                            f1_all = f1_score(rawTin.loc[:, Attack.sensitiveAttribute], guess_all,
+                                              pos_label=runconfig['positive_label'][Attack.sensitiveAttribute],
+                                              average='binary')
+                            f1_all_macro = f1_score(rawTin.loc[:, Attack.sensitiveAttribute], guess_all, average='macro')
+                            f1_all_micro = f1_score(rawTin.loc[:, Attack.sensitiveAttribute], guess_all,
+                                                    average='micro')
+                            tprate_all = recall_score(rawTin.loc[:, Attack.sensitiveAttribute], guess_all,
+                                                      pos_label=runconfig['positive_label'][Attack.sensitiveAttribute],
+                                                      average='binary')
+                            ppvrate_all = precision_score(rawTin.loc[:, Attack.sensitiveAttribute], guess_all,
+                                                          pos_label=runconfig['positive_label'][
+                                                              Attack.sensitiveAttribute],
+                                                          average='binary')
+                        acc_all = accuracy_score(rawTin.loc[:, Attack.sensitiveAttribute], guess_all)
+                        acc_balanced_all = balanced_accuracy_score(rawTin.loc[:, Attack.sensitiveAttribute], guess_all)
+
                         resultsTargetPrivacy[tid][sa][GenModel.__name__][nr]['AttackerGuess'].append(guess)
                         resultsTargetPrivacy[tid][sa][GenModel.__name__][nr]['ProbCorrect'].append(pCorrect)
                         resultsTargetPrivacy[tid][sa][GenModel.__name__][nr]['TargetPresence'].append(LABEL_IN)
+                        resultsTargetPrivacy[tid][sa][GenModel.__name__][nr]['GuessAllF1'].append(f1_all)
+                        resultsTargetPrivacy[tid][sa][GenModel.__name__][nr]['GuessAllF1macro'].append(f1_all_macro)
+                        resultsTargetPrivacy[tid][sa][GenModel.__name__][nr]['GuessAllF1micro'].append(f1_all_micro)
+                        resultsTargetPrivacy[tid][sa][GenModel.__name__][nr]['GuessAllAcc'].append(acc_all)
+                        resultsTargetPrivacy[tid][sa][GenModel.__name__][nr]['GuessAllAccBal'].append(acc_balanced_all)
+                        resultsTargetPrivacy[tid][sa][GenModel.__name__][nr]['GuessAllTP'].append(tprate_all)
+                        resultsTargetPrivacy[tid][sa][GenModel.__name__][nr]['GuessAllPPV'].append(ppvrate_all)
+
             del synTwithTarget
 
         for San in sanList:
@@ -243,11 +404,48 @@ def main():
                     guess = Attack.attack(targetAux, attemptLinkage=True, data=sanOut)
                     pCorrect = Attack.get_likelihood(targetAux, targetSecret, attemptLinkage=True, data=sanOut)
 
+                    # predict all rows in the raw dataset (not just target)
+                    guess_all = Attack.attack(rawTout.loc[:, Attack.knownAttributes], attemptLinkage=False,
+                                              data=None, guess_all=True)
+                    # calculate metrics for all rows
+                    if len(rawTout.loc[:, Attack.sensitiveAttribute].unique()) > 2:
+                        f1_all = nan
+                        f1_all_macro = f1_score(rawTout.loc[:, Attack.sensitiveAttribute], guess_all, average='macro')
+                        f1_all_micro = f1_score(rawTout.loc[:, Attack.sensitiveAttribute], guess_all, average='micro')
+                        tprate_all = recall_score(rawTout.loc[:, Attack.sensitiveAttribute], guess_all,
+                                                  labels=[runconfig['positive_label'][Attack.sensitiveAttribute]],
+                                                  average='macro')
+                        ppvrate_all = precision_score(rawTout.loc[:, Attack.sensitiveAttribute], guess_all,
+                                                      labels=[
+                                                          runconfig['positive_label'][Attack.sensitiveAttribute]],
+                                                      average='macro')
+                    else:
+                        f1_all = f1_score(rawTout.loc[:, Attack.sensitiveAttribute], guess_all,
+                                          pos_label=runconfig['positive_label'][Attack.sensitiveAttribute],
+                                          average='binary')
+                        f1_all_macro = f1_score(rawTout.loc[:, Attack.sensitiveAttribute], guess_all, average='macro')
+                        f1_all_micro = f1_score(rawTout.loc[:, Attack.sensitiveAttribute], guess_all, average='micro')
+                        tprate_all = recall_score(rawTout.loc[:, Attack.sensitiveAttribute], guess_all,
+                                                  pos_label=runconfig['positive_label'][Attack.sensitiveAttribute],
+                                                  average='binary')
+                        ppvrate_all = precision_score(rawTout.loc[:, Attack.sensitiveAttribute], guess_all,
+                                                      pos_label=runconfig['positive_label'][Attack.sensitiveAttribute],
+                                                      average='binary')
+                    acc_all = accuracy_score(rawTout.loc[:, Attack.sensitiveAttribute], guess_all)
+                    acc_balanced_all = balanced_accuracy_score(rawTout.loc[:, Attack.sensitiveAttribute], guess_all)
+
                     resultsTargetPrivacy[tid][sa][San.__name__][nr] = {
                         'AttackerGuess': [guess],
                         'ProbCorrect': [pCorrect],
-                        'TargetPresence': [LABEL_OUT]
-                }
+                        'TargetPresence': [LABEL_OUT],
+                        'GuessAllF1': [f1_all],
+                        'GuessAllF1macro': [f1_all_macro],
+                        'GuessAllF1micro': [f1_all_micro],
+                        'GuessAllAcc': [acc_all],
+                        'GuessAllAccBal': [acc_balanced_all],
+                        'GuessAllTP': [tprate_all],
+                        'GuessAllPPV': [ppvrate_all]
+                    }
 
             for tid in targetIDs:
                 LOGGER.info(f'Target: {tid}')
@@ -265,15 +463,53 @@ def main():
                     guess = Attack.attack(targetAux, attemptLinkage=True, data=sanIn)
                     pCorrect = Attack.get_likelihood(targetAux, targetSecret, attemptLinkage=True, data=sanIn)
 
+                    # predict all rows in the raw dataset (not just target)
+                    guess_all = Attack.attack(rawTin.loc[:, Attack.knownAttributes], attemptLinkage=False,
+                                              data=None, guess_all=True)
+                    # calculate metrics for all rows
+                    if len(rawTin.loc[:, Attack.sensitiveAttribute].unique()) > 2:
+                        f1_all = nan
+                        f1_all_macro = f1_score(rawTin.loc[:, Attack.sensitiveAttribute], guess_all, average='macro')
+                        f1_all_micro = f1_score(rawTin.loc[:, Attack.sensitiveAttribute], guess_all, average='micro')
+                        tprate_all = recall_score(rawTin.loc[:, Attack.sensitiveAttribute], guess_all,
+                                                  labels=[runconfig['positive_label'][Attack.sensitiveAttribute]],
+                                                  average='macro')
+                        ppvrate_all = precision_score(rawTin.loc[:, Attack.sensitiveAttribute], guess_all,
+                                                      labels=[
+                                                          runconfig['positive_label'][Attack.sensitiveAttribute]],
+                                                      average='macro')
+                    else:
+                        f1_all = f1_score(rawTin.loc[:, Attack.sensitiveAttribute], guess_all,
+                                          pos_label=runconfig['positive_label'][Attack.sensitiveAttribute],
+                                          average='binary')
+                        f1_all_macro = f1_score(rawTin.loc[:, Attack.sensitiveAttribute], guess_all, average='macro')
+                        f1_all_micro = f1_score(rawTin.loc[:, Attack.sensitiveAttribute], guess_all, average='micro')
+                        tprate_all = recall_score(rawTin.loc[:, Attack.sensitiveAttribute], guess_all,
+                                                  pos_label=runconfig['positive_label'][Attack.sensitiveAttribute],
+                                                  average='binary')
+                        ppvrate_all = precision_score(rawTin.loc[:, Attack.sensitiveAttribute], guess_all,
+                                                      pos_label=runconfig['positive_label'][Attack.sensitiveAttribute],
+                                                      average='binary')
+                    acc_all = accuracy_score(rawTin.loc[:, Attack.sensitiveAttribute], guess_all)
+                    acc_balanced_all = balanced_accuracy_score(rawTin.loc[:, Attack.sensitiveAttribute], guess_all)
+
                     resultsTargetPrivacy[tid][sa][San.__name__][nr]['AttackerGuess'].append(guess)
                     resultsTargetPrivacy[tid][sa][San.__name__][nr]['ProbCorrect'].append(pCorrect)
                     resultsTargetPrivacy[tid][sa][San.__name__][nr]['TargetPresence'].append(LABEL_IN)
+                    resultsTargetPrivacy[tid][sa][San.__name__][nr]['GuessAllF1'].append(f1_all)
+                    resultsTargetPrivacy[tid][sa][San.__name__][nr]['GuessAllF1macro'].append(f1_all_macro)
+                    resultsTargetPrivacy[tid][sa][San.__name__][nr]['GuessAllF1micro'].append(f1_all_micro)
+                    resultsTargetPrivacy[tid][sa][San.__name__][nr]['GuessAllAcc'].append(acc_all)
+                    resultsTargetPrivacy[tid][sa][San.__name__][nr]['GuessAllAccBal'].append(acc_balanced_all)
+                    resultsTargetPrivacy[tid][sa][San.__name__][nr]['GuessAllTP'].append(tprate_all)
+                    resultsTargetPrivacy[tid][sa][San.__name__][nr]['GuessAllPPV'].append(ppvrate_all)
 
     outfile = f"ResultsMLEAI_{dname}"
     LOGGER.info(f"Write results to {path.join(f'{args.outdir}', f'{outfile}')}")
 
     with open(path.join(f'{args.outdir}', f'{outfile}.json'), 'w') as f:
         json.dump(resultsTargetPrivacy, f, indent=2, default=json_numpy_serialzer)
+
 
 if __name__ == "__main__":
     main()

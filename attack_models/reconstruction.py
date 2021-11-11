@@ -1,4 +1,5 @@
 from os import path
+import numpy as np
 from pandas.api.types import CategoricalDtype
 from numpy import mean, concatenate, ones, sqrt, zeros, arange, argmax, array
 from scipy.stats import norm
@@ -36,7 +37,7 @@ class AttributeInferenceAttack(PrivacyAttack):
 
         self.__name__ = f'{self.PredictionModel.__class__.__name__}'
 
-    def attack(self, targetAux, attemptLinkage=False, data=None):
+    def attack(self, targetAux, attemptLinkage=False, data=None, guess_all=False):
         """Makes a guess about the target's secret attribute"""
         assert self.trained, 'Attack must first be trained on some data before can predict sensitive target value'
 
@@ -53,7 +54,10 @@ class AttributeInferenceAttack(PrivacyAttack):
             except:
                 guess = self._make_guess(targetAux)
         else:
-            guess = self._make_guess(targetAux)
+            if guess_all:
+                guess = self._make_guess_all(targetAux)
+            else:
+                guess = self._make_guess(targetAux)
 
         return guess
 
@@ -283,6 +287,14 @@ class RandForestAttack(AttributeInferenceAttack):
             guess = self.PredictionModel.predict(targetFeaturesScaled)
 
         return self.labelsInv[guess[0]]
+
+    def _make_guess_all(self, targetAux):
+        targetFeatures = self._encode_data(targetAux)
+        targetFeaturesScaled = targetFeatures - self.scaleFactor
+
+        guess = self.PredictionModel.predict(targetFeaturesScaled)
+
+        return np.array([self.labelsInv[g] for g in guess])
 
     def get_likelihood(self, targetAux, targetSensitive, attemptLinkage=False, data=None):
         assert self.trained, 'Attack must first be trained on some data before can predict sensitive target value'
