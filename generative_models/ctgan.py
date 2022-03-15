@@ -34,7 +34,8 @@ class CTGAN(GenerativeModel):
         assert isinstance(data, self.datatype), f'{self.__class__.__name__} expects {self.datatype} as input data but got {type(data)}'
 
         LOGGER.debug(f'Start fitting {self.__class__.__name__} to data of shape {data.shape}...')
-        self.synthesiser.fit(data, self.metadata)
+        discrete_columns = [self.metadata['columns'][idx]['name'] for idx in self.metadata['categorical_columns'] + self.metadata['ordinal_columns']]
+        self.synthesiser.fit(data, discrete_columns)
 
         LOGGER.debug(f'Finished fitting')
         self.trained = True

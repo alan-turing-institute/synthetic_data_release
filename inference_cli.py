@@ -15,7 +15,7 @@ from utils.constants import *
 
 from generative_models.ctgan import CTGAN
 from generative_models.data_synthesiser import IndependentHistogram, BayesianNet, PrivBayes
-from generative_models.pate_gan import PATEGAN
+#from generative_models.pate_gan import PATEGAN
 from sanitisation_techniques.sanitiser import SanitiserNHS
 from attack_models.reconstruction import LinRegAttack, RandForestAttack
 
