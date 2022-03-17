@@ -23,9 +23,20 @@ simplefilter('ignore', category=DeprecationWarning)
 import multiprocessing as mp
 
 class MIAttackClassifier(PrivacyAttack):
-    """"Parent class for membership inference attack on the output of a generative model using sklearn classifier"""
-    def __init__(self, Distinguisher, metadata, FeatureSet=None, quids=None):
+    """
+    Parent class for membership inference attack on the output of a 
+    generative model using a classifier. A single instance of this class
+    corresponds to a specific target data point.
 
+    Args:
+        Distinguisher : Classifier to use to distinguish synthetic datasets
+        metadata (dict) : Metadata dictionary describing data
+        FeatureSet (feature_sets.feature_set.FeatureSet) : FeatureSet extracts a set of features
+            from the dataset to use as input to the distinguisher
+        quids : UNKNOWN #TODO
+
+    """
+    def __init__(self, Distinguisher, metadata, FeatureSet=None, quids=None):
         self.Distinguisher = Distinguisher
         self.FeatureSet = FeatureSet
 
@@ -36,8 +47,16 @@ class MIAttackClassifier(PrivacyAttack):
         self.__name__ = f'{self.Distinguisher.__class__.__name__}{self.FeatureSet.__class__.__name__}'
 
     def train(self, synA, labels):
-        """Train a membership inference attack on a labelled training set"""
+        """
+        Train the attack classifier on a labelled training set
+        
+        Args:
+            synA (List[pd.DataFrame]) : List of synthetic datasets
+            labels : Labels indicating whether the corresponding synthetic
+                dataset was generated with or without the target
+        """
 
+        # Convert input datasets to the features specified by FeatureSet
         if self.FeatureSet is not None:
             synA = stack([self.FeatureSet.extract(s) for s in synA])
         else:
@@ -46,17 +65,28 @@ class MIAttackClassifier(PrivacyAttack):
         if not isinstance(labels, ndarray):
             labels = array(labels)
 
+        # Fit the classifier to the data
         self.Distinguisher.fit(synA, labels)
 
         self.trained = True
 
     def attack(self, datasets, attemptLinkage=False, target=None):
         """
-        Make a guess about the target's membership in the training data of the
-        generative model that produced the synthetic input data
+        Make a guess about the target's membership in the training data of
+        each of the generative models that produced each of the synthetic
+        input datasets
 
-        :param datasets: list: A list of synthetic or sanitised datasets
-        :return: guess: list: A guess about the target's membership for each of the synthetic input datasets
+        Args:
+            datasets (List[pd.DataFrame]) : List of synthetic datasets to attack
+            attemptLinkage (bool) : If True, search for Target explicitly in
+                each dataset before using the classifier
+            target : Target to find if attemptLinkage=True
+        # TODO: Think about API of this method and confirm attemptLinkage understanding
+
+        Returns:
+            guesses (List[int]) : List of guesses. The ith entry corresponds
+                to the guess for the ith dataset in datasets. Guess of 0
+                corresponds to target not present.
         """
         assert self.trained, 'Attack must first be trained.'
 
@@ -82,6 +112,10 @@ class MIAttackClassifier(PrivacyAttack):
         return guesses
 
     def _make_guess(self, df):
+        """
+        Make a guess for a single dataset about the presence of the target in
+        the training data that generated the dataset
+        """
         if self.FeatureSet is not None:
             f = self.FeatureSet.extract(df).reshape(1, -1)
         else:
@@ -91,7 +125,17 @@ class MIAttackClassifier(PrivacyAttack):
 
 
     def get_confidence(self, synT, secret):
-        """Calculate probability that attacker correctly predicts whether target was present in model's training data"""
+        """
+        Calculate classifier's raw probability about the presence of the target.
+        Output is a probability in [0, 1].
+
+        Args:
+            synT (List[pd.DataFrame]) : List of dataframes to predict
+            secret : UKNOWN # TODO
+
+        Returns:
+            List of probabilities corresponding to attacker's guess
+        """
         assert self.trained, 'Attack must first be trained.'
         if self.FeatureSet is not None:
             synT = stack([self.FeatureSet.extract(s) for s in synT])
@@ -230,6 +274,32 @@ class MIAttackClassifierMLP(MIAttackClassifier):
 
 
 def generate_mia_shadow_data(GenModel, target, rawA, sizeRaw, sizeSyn, numModels, numCopies):
+    """
+    Generate labelled training data for an attack classifier based on GenModel.
+
+    Args:
+        GenModel (generative_models.generative_model.GenerativeModel) : Model
+            to use to generate synthetic datasets
+        target (UNKNOWN # TODO) : Target data row. This row will be added to
+            each training dataset and the corresponding label for the output
+            synthetic datasets will be 1 (and 0 for the datasets created without
+            this row).
+        rawA : Raw data. Type should match GenModel.datatype. This will be
+            subsampled according to sizeSyn, with numModels subsamples being
+            created. The generative model is trained on each subsample with 
+            and without Target.
+        sizeRaw (int) : Size of data to subsample to for generative model training.
+        sizeSyn (int) : Size of synthetic data to generate.
+        numModels (int) : Number of independent copies of GenModel to train.
+        numCopies (int) : Number of synthetic datasets to generate from each trained
+            copy of GenModel.
+
+    Returns:
+        synA (List) : List of synthetic datasets.
+        labelsA (List[int]) : List of labels (0 or 1) indicating whether the
+            corresponding synthetic dataset in synA was generated by a model
+            trained with target (1) or without target (0).
+    """
     assert isinstance(rawA, GenModel.datatype), f"GM expects datatype {GenModel.datatype} but got {type(rawA)}"
     assert isinstance(target, type(rawA)), f"Mismatch of datatypes between target record and raw data"
 
@@ -260,6 +330,26 @@ def generate_mia_shadow_data(GenModel, target, rawA, sizeRaw, sizeSyn, numModels
 
 
 def worker_train_shadow(rawA, train_index, GenModel, target, sizeSyn, numCopies, synA, labelsA):
+    """
+    Extend synA and labelsA with synthetic datasets generated according to
+    a new instance of GenModel.
+
+    Args:
+        rawA : Raw data to use for training. Type should match GenModel.datatype.
+        train_index : Indices that indicate which rows of rawA to be used
+            for this instance of GenModel.
+        target : Target data row. GenModel will be trained once on rawA[train_index]
+            and once on rawA[train_index] + target. The corresponding label for the
+            output synthetic datasets will be 0 and 1, respectively.
+        sizeSyn (int) : Size of synthetic dataset to generate.
+        numCopies (int) : Number of distinct synthetic datasets to generate.
+        synA : List of synthetic datasets to append newly generated synthetic
+            datasets to.
+        labelsA : List of labels to append labels of newly generated synthetic
+            datasets to.
+
+    Modifies synA and labelsA in-place.
+    """
     # Fit GM to data without target's data
     if isinstance(rawA, DataFrame):
         rawAout = rawA.iloc[train_index]
@@ -294,6 +384,9 @@ def worker_train_shadow(rawA, train_index, GenModel, target, sizeSyn, numCopies,
 
 
 def generate_mia_anon_data(Sanitiser, target, rawA, sizeRaw, numSamples):
+    """
+    Same as generate_mia_shadow_data but for Sanitiser methods.
+    """
     assert isinstance(rawA, Sanitiser.datatype), f"GM expects datatype {Sanitiser.datatype} but got {type(rawA)}"
     assert isinstance(target, type(rawA)), f"Mismatch of datatypes between target record and raw data"
 
@@ -307,6 +400,9 @@ def generate_mia_anon_data(Sanitiser, target, rawA, sizeRaw, numSamples):
 
 
 def worker_sanitise_data(rawA, train_index, Sanitiser, target, sanA, labelsA):
+    """
+    Same as worker_train_shadow but for Sanitiser methods.
+    """
     # Fit GM to data without target's data
     if isinstance(rawA, DataFrame):
         rawAout = rawA.iloc[train_index]
