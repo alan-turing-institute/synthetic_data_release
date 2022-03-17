@@ -9,7 +9,7 @@ cwd = path.dirname(__file__)
 
 from generative_models.data_synthesiser import IndependentHistogram, BayesianNet, PrivBayes
 from generative_models.ctgan import CTGAN
-from generative_models.pate_gan import PATEGAN
+#from generative_models.pate_gan import PATEGAN
 
 from utils.datagen import *
 
@@ -19,7 +19,8 @@ class TestGenerativeModel(TestCase):
 
     @classmethod
     def setUp(self) -> None:
-        self.raw, self.metadata = load_local_data_as_df(path.join(cwd, 'germancredit_test'))
+        self.raw, self.metadata = load_local_data_as_df(path.join(cwd, 'texas'))
+        self.raw = self.raw.sample(1000)
         self.sizeS = len(self.raw)
 
     def test_independent_histogram(self):
@@ -101,27 +102,27 @@ class TestGenerativeModel(TestCase):
         self.assertListEqual(list(synthetic_data), list(self.raw))
 
 
-    def test_pategan(self):
-        # Default params
-        gm = PATEGAN(self.metadata)
-        gm.fit(self.raw)
-        synthetic_data = gm.generate_samples(self.sizeS)
+    #def test_pategan(self):
+    #    # Default params
+    #    gm = PATEGAN(self.metadata)
+    #    gm.fit(self.raw)
+    #    synthetic_data = gm.generate_samples(self.sizeS)
 
-        self.assertTupleEqual(synthetic_data.shape, self.raw.shape)
+    #    self.assertTupleEqual(synthetic_data.shape, self.raw.shape)
 
         # Change privacy params
-        gm = PATEGAN(self.metadata, eps=10, delta=1e-1)
-        gm.fit(self.raw)
-        synthetic_data = gm.generate_samples(self.sizeS)
+    #    gm = PATEGAN(self.metadata, eps=10, delta=1e-1)
+    #    gm.fit(self.raw)
+    #    synthetic_data = gm.generate_samples(self.sizeS)
 
-        self.assertTupleEqual(synthetic_data.shape, self.raw.shape)
+    #    self.assertTupleEqual(synthetic_data.shape, self.raw.shape)
 
         # Infer ranges
-        gm = PATEGAN(self.metadata, infer_ranges=True)
-        gm.fit(self.raw)
-        synthetic_data = gm.generate_samples(self.sizeS)
+    #    gm = PATEGAN(self.metadata, infer_ranges=True)
+    #    gm.fit(self.raw)
+    #    synthetic_data = gm.generate_samples(self.sizeS)
 
-        self.assertTupleEqual(synthetic_data.shape, self.raw.shape)
+    #    self.assertTupleEqual(synthetic_data.shape, self.raw.shape)
 
 
 

@@ -22,7 +22,8 @@ from utils.datagen import load_local_data_as_df
 class TestAttacks(TestCase):
     @classmethod
     def setUp(self) -> None:
-        self.raw, self.metadata = load_local_data_as_df(path.join(cwd, 'germancredit_test'))
+        self.raw, self.metadata = load_local_data_as_df(path.join(cwd, 'texas'))
+        self.raw = self.raw.sample(1000)
         self.sizeS = int(len(self.raw)/2)
         self.GenModel = IndependentHistogram(self.metadata)
         self.San = SanitiserNHS(self.metadata)

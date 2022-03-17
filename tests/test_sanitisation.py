@@ -17,7 +17,7 @@ class TestSanitisation(TestCase):
 
     @classmethod
     def setUp(self) -> None:
-        self.raw, self.metadata = load_local_data_as_df(path.join(cwd, 'germancredit_test'))
+        self.raw, self.metadata = load_local_data_as_df(path.join(cwd, 'texas'))
         self.sizeS = len(self.raw)
 
     def test_sanitise_nhs(self):
@@ -31,11 +31,11 @@ class TestSanitisation(TestCase):
         self.assertTupleEqual(san.shape, self.raw.shape)
 
         ## Test dropping columns
-        sanitiser = SanitiserNHS(self.metadata, drop_cols=['Purpose'])
+        sanitiser = SanitiserNHS(self.metadata, drop_cols=['TYPE_OF_ADMISSION'])
         san = sanitiser.sanitise(self.raw)
 
         # Purpose should be dropped
-        self.assertTrue('Purpose' not in list(san))
+        self.assertTrue('TYPE_OF_ADMISSION' not in list(san))
 
         ## Test rare value threshold
         sanitiser = SanitiserNHS(self.metadata, thresh_rare=2)
@@ -47,7 +47,7 @@ class TestSanitisation(TestCase):
                 self.assertTrue(len(counts[counts > 2]) == len(counts))
 
         ## Test converting numerical into categorical attributes
-        demographics = ['Age', 'Sex', 'Job', 'Housing']
+        demographics = ['PAT_AGE', 'SEX_CODE', 'TYPE_OF_ADMISSION', 'DISCHARGE']
         sanitiser = SanitiserNHS(self.metadata, quids=demographics)
         san = sanitiser.sanitise(self.raw)
 

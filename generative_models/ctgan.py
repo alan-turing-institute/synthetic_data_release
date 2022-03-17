@@ -1,4 +1,6 @@
 from pandas import DataFrame
+from sklearn.exceptions import ConvergenceWarning
+import warnings
 
 from utils.logging import LOGGER
 
@@ -35,7 +37,10 @@ class CTGAN(GenerativeModel):
 
         LOGGER.debug(f'Start fitting {self.__class__.__name__} to data of shape {data.shape}...')
         discrete_columns = [self.metadata['columns'][idx]['name'] for idx in self.metadata['categorical_columns'] + self.metadata['ordinal_columns']]
-        self.synthesiser.fit(data, discrete_columns)
+
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore', ConvergenceWarning)
+            self.synthesiser.fit(data, discrete_columns)
 
         LOGGER.debug(f'Finished fitting')
         self.trained = True
