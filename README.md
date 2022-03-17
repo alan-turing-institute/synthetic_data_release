@@ -49,39 +49,28 @@ and opening the notebook with your favourite web browser at the url `http://127.
 ## Direct Installation
 
 ### Requirements
-The framework and its building blocks have been developed and tested under Python 3.9 .
+The framework and its building blocks have been developed and tested under Python 3.9.
 
-We recommend to create a virtual environment for installing all dependencies and running the code
+
+#### Poetry installation
+To mimic our environment exactly, we recommend using `poetry`. To install poetry (system-wide), follow the instructions [here](https://python-poetry.org/docs/).
+
+Then run
+```
+poetry install
+```
+from inside the project directory. This will create a virtual environment (default `.venv`), that can be accessed by running `poetry shell`, or in the usual way (with `source .venv/bin/activate`).
+
+
+#### Pip installation
+
+For Pip installation, we recommend creating a virtual environment for installing all dependencies by running
 ```
 python3 -m venv pyvenv3
 source pyvenv3/bin/activate
-pip install numpy==1.19.5 && pip install -r requirements.txt
+pip install -r requirements.txt
 ```
 
-Note: Some people encountered problems due to the API of Numpy having changed between versions, to ensure all dependencies are compiled against the same Numpy version, it needs to be installed first.
-
-### Dependencies
-The `CTGAN` model depends on a fork of the original model training algorithm that can be found here
-[CTGAN-SPRING](https://github.com/spring-epfl/CTGAN.git)
-
-To install the correct version clone the repository above and run
-```
-cd CTGAN
-make install
-```
-
-Add the path to this directory to your python path. You can also add this line
-in your shell configuration file (e.g., `~/.bashrc`) to load it automatically.
-```bash
-# Execute this in the CTGAN folder, otherwise replace `pwd` with the actual path
-export PYTHONPATH=$PYTHONPATH:`pwd`
-```
-
-To test your installation try to run
-```
-import ctgan
-```
-from within your virtualenv `python`
 
 # Example runs
 To run a privacy evaluation with respect to the privacy concern of linkability you can run
