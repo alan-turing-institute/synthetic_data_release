@@ -21,7 +21,7 @@ from feature_sets.bayes import CorrelationsFeatureSet
 from sanitisation_techniques.sanitiser import SanitiserNHS
 
 from generative_models.ctgan import CTGAN
-from generative_models.pate_gan import PATEGAN
+#from generative_models.pate_gan import PATEGAN
 from generative_models.data_synthesiser import (IndependentHistogram,
                                                 BayesianNet,
                                                 PrivBayes)
