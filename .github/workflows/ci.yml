@@ -1,0 +1,50 @@
+name: Synthetic data release
+on: [push, pull_requests]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [3.9]
+        poetry-version: [1.1.4]
+
+    runs-on: ubuntu-latest
+
+    poetry_test:
+      steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install poetry ${{ matrix.poetry-version }}
+        run: |
+          python -m ensurepip
+          python -m pip install --upgrade pip
+          python -m pip install poetry==${{ matrix.poetry-version }}
+
+      - name: View poetry --help
+        run: poetry --help
+
+      - name: Install dependencies
+        shell: bash
+        run: python -m poetry install
+
+      - name: Test with pytest
+        run: |
+          python -m poetry run python -m pytest -v tests
+
+
+    piptest:
+      steps:
+        - uses: actions/checkout@v3
+        - uses: actions/setup-python@v3
+          with:
+            python-version: ${{ matrix.python-version }}
+            cache: 'pip'
+        - run: pip install -r requirements.txt
+
+
