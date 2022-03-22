@@ -1,6 +1,6 @@
 # CI for pip based installation and tests
 
-name: Synthetic data release
+name: Synthetic data release (pip installation)
 on: [push, pull_request]
 
 jobs:

@@ -1,4 +1,4 @@
-name: Synthetic data release
+name: Synthetic data release (poetry installation)
 on: [push, pull_request]
 
 jobs:
