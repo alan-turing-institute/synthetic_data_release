@@ -34,7 +34,7 @@ def main():
     datasource.add_argument('--s3name', '-S3', type=str, choices=['adult', 'census', 'credit', 'alarm', 'insurance'], help='Name of the dataset to run on')
     datasource.add_argument('--datapath', '-D', type=str, help='Relative path to cwd of a local data file')
     argparser.add_argument('--runconfig', '-RC', default='runconfig_mia.json', type=str, help='Path relative to cwd of runconfig file')
-    argparser.add_argument('--outdir', '-O', default='outputs/test', type=str, help='Path relative to cwd for storing output files')
+    argparser.add_argument('--outdir', '-O', default='runs/utility', type=str, help='Path relative to cwd for storing output files')
     args = argparser.parse_args()
 
     seed(SEED)

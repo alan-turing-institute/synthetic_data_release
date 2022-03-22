@@ -3,66 +3,46 @@ A practical framework to evaluate the privacy-utility tradeoff of synthetic data
 
 Based on "Synthetic Data - Anonymisation Groundhog Day, Theresa Stadler, Bristena Oprisanu, and Carmela Troncoso, [arXiv](https://arxiv.org/abs/2011.07018), 2020"
 
-# Attack models
+
+# Models included
+
+## Attack models
 The module `attack_models` so far includes
 
-A privacy adversary to test for privacy gain with respect to linkage attacks modelled as a membership inference attack `MIAAttackClassifier`.
+A privacy adversary to test for privacy gain with respect to linkage attacks modelled as a membership inference attack `MIAAttackClassifier`. The classifiers available for the attack are:
+- `LogisticRegression` from `sklearn`
+- `RandomForestClassifier` from `sklearn`
+- `KNeighborsClassifier` (k-Nearest Neighbours) from `sklearn`
+- `MLPClassifier` (multilayer perceptron) from `sklearn`
+- `SVC` (support vector classifier) from `sklearn`
 
 A simple attribute inference attack `AttributeInferenceAttack` that aims to infer a target's sensitive value given partial knowledge about the target record
 
-# Generative models
+## Generative models
 The module `generative_models` so far includes:   
 - `IndependentHistogram`: An independent histogram model adapted from [Data Responsibly's DataSynthesiser](https://github.com/DataResponsibly/DataSynthesizer)
 - `BayesianNet`: A generative model based on a Bayesian Network adapted from [Data Responsibly's DataSynthesiser](https://github.com/DataResponsibly/DataSynthesizer)
 - `PrivBayes`: A differentially private version of the BayesianNet model adapted from [Data Responsibly's DataSynthesiser](https://github.com/DataResponsibly/DataSynthesizer)
-- `CTGAN`: A conditional tabular generative adversarial network that integrates the CTGAN model from [CTGAN](https://github.com/sdv-dev/CTGAN)  
-- `PATE-GAN`: A differentially private generative adversarial network adapted from its original implementation by the [MLforHealth Lab](https://bitbucket.org/mvdschaar/mlforhealthlabpub/src/82d7f91d46db54d256ff4fc920d513499ddd2ab8/alg/pategan/)
+- `CTGAN`: A conditional tabular generative adversarial network that integrates the CTGAN model from [CTGAN](https://github.com/sdv-dev/CTGAN)
+
 
 # Setup
 
-## Docker Distribution
-
-For your convenience, Synthetic Data is also distributed as a ready-to-use Docker image containing Python 3.9 and CUDA 11.4.2, along with all dependencies required by Synthetic Data, including jupyter notebook to visualise and analyse the results.
-
-**Note:** This distribution includes CUDA binaries, before downloading the image, ensure to read [its EULA](https://docs.nvidia.com/cuda/eula/index.html) and to agree to its terms.
-
-Pull the image and run a container (and bind a volume where you want to save the data):
-
-```
-docker pull springepfl/synthetic-data:latest
-docker run -it --rm -v "$(pwd)/output:/output" -p 8888:8888 springepfl/synthetic-data
-```
-
-The Synthetic Data directory is placed at the root directory of the container.
-```
-cd /synthetic_data_release
-```
-
-You should now be able to run the examples without encountering any problems, and you should be able to visualize the results with Jupyter by running
-```
-jupyter notebook --allow-root --ip=0.0.0.0
-```
-
-and opening the notebook with your favourite web browser at the url `http://127.0.0.1:8888/?token=<authentication token>`.
-
-
-## Direct Installation
-
-### Requirements
+## Requirements
 The framework and its building blocks have been developed and tested under Python 3.9.
 
 
-#### Poetry installation
+### Poetry installation
 To mimic our environment exactly, we recommend using `poetry`. To install poetry (system-wide), follow the instructions [here](https://python-poetry.org/docs/).
 
 Then run
 ```
 poetry install
 ```
-from inside the project directory. This will create a virtual environment (default `.venv`), that can be accessed by running `poetry shell`, or in the usual way (with `source .venv/bin/activate`).
+from inside the project directory. This will create a virtual environment (default `.venv`), that can be accessed by running `poetry shell`, or in the usual way with `source .venv/bin/activate`.
 
 
-#### Pip installation
+### Pip installation
 
 For Pip installation, we recommend creating a virtual environment for installing all dependencies by running
 ```
@@ -73,31 +53,68 @@ pip install -r requirements.txt
 
 
 # Example runs
+
+### Membership inference
 To run a privacy evaluation with respect to the privacy concern of linkability you can run
-
 ```
-python3 linkage_cli.py -D data/texas -RC tests/linkage/runconfig.json -O tests/linkage
+python3 linkage_cli.py -D data/texas -RC configs/linkage/runconfig.json -O runs/linkage
 ```
+You can edit the configuration file `configs/linkage/runconfig.json` to choose the 
+parameters of the evaluation:
+- `nIter`: Number of independent iterations of the attack
+- `sizeRawA`: Size of the shadow raw dataset (sample from the raw data that the intruder has access to)
+- `nSynA`: Number of synthetic datasets to generate per trained generative model
+- `nShadows`: Number of different instances of each generative model to train per target
+- `sizeRawT`: Size of raw datasets to be used as training data for generative models
+- `sizeSynT`: Size of each synthetic dataset to generate
+- `nSynT`: Number of synthetic datasets to generate from each trained generative model
+- `nTargets`: Number of targets to randomly select and perform linkage attack on (in *addition* to the ones specified by `Targets`)
+- `Targets`: List of specific targets to perform linkage attack on. Each target is given in the format "IDXXX" where XXX is their sequential order in the raw data.
+- `generativeModels`: Dictionary of synthetic methods to test (with parameters for each)
+- `sanitisationTechniques`: Dictionary of traditional anonymisation (sanitisation) methods to test (with parameters for each)
 
-The results file produced after successfully running the script will be written to `tests/linkage` and can be parsed with the function `load_results_linkage` provided in `utils/analyse_results.py`. 
+The results file produced after successfully running the script will be written to `runs/linkage` and can be parsed with the function `load_results_linkage` provided in `utils/analyse_results.py`.
 A jupyter notebook to visualise and analyse the results is included at `notebooks/Analyse Results.ipynb`.
 
-
+### Attribute inference
 To run a privacy evaluation with respect to the privacy concern of inference you can run
-
 ```
-python3 inference_cli.py -D data/texas -RC tests/inference/runconfig.json -O tests/inference
+python3 inference_cli.py -D data/texas -RC configs/inference/runconfig.json -O runs/inference
 ```
+You can edit the configuration file `configs/inference/runconfig.json` to choose the 
+parameters of the evaluation:
+- `sensitiveAttributes`: Dictionary of the sensitive attributes and whether they should be attacked using classification or regression
+- `nIter`: Number of independent iterations of the attack
+- `sizeRawT`: Size of raw datasets to be used as training data for generative models
+- `sizeSynT`: Size of each synthetic dataset to generate
+- `nSynT`: Number of synthetic datasets to generate from each trained generative model
+- `nTargets`: Number of targets to randomly select and perform inference attack on (in *addition* to the ones specified by `Targets`)
+- `Targets`: List of specific targets to perform inference attack on. Each target is given in the format "IDXXX" where XXX is their sequential order in the raw data.
+- `generativeModels`: Dictionary of synthetic methods to test (with parameters for each)
+- `sanitisationTechniques`: Dictionary of traditional anonymisation (sanitisation) methods to test (with parameters for each)
 
-The results file produced after successfully running the script can be parsed with the function `load_results_inference` provided in `utils/analyse_results.py`.
+The results file produced after successfully running the script will be written to `runs/inference` and can be parsed with the function `load_results_inference` provided in `utils/analyse_results.py`.
 A jupyter notebook to visualise and analyse the results is included at `notebooks/Analyse Results.ipynb`.
 
-
+### Utility
 To run a utility evaluation with respect to a simple classification task as utility function run
 
 ```
-python3 utility_cli.py -D data/texas -RC tests/utility/runconfig.json -O tests/utility
+python3 utility_cli.py -D data/texas -RC configs/utility/runconfig.json -O runs/utility
 ```
+You can edit the configuration file `configs/utility/runconfig.json` to choose the 
+parameters of the evaluation:
+- `nIter`: Number of independent iterations of the attack
+- `sizeRawT`: Size of raw datasets to be used as training data for generative models
+- `sizeSynT`: Size of each synthetic dataset to generate
+- `nSynT`: Number of synthetic datasets to generate from each trained generative model
+- `nTargets`: Number of targets to randomly select and evaluate utility on (in *addition* to the ones specified by `Targets`)
+- `Targets`: List of specific targets to include/not include when doing utility evaluation. Each target is given in the format "IDXXX" where XXX is their sequential order in the raw data.
+- `TestRecords`: List of specific targets to perform utility evaluation on. Each target is given in the format "IDXXX" where XXX is their sequential order in the raw data.
+- `generativeModels`: Dictionary of synthetic methods to test (with parameters for each)
+- `sanitisationTechniques`: Dictionary of traditional anonymisation (sanitisation) methods to test (with parameters for each)
+- `utilityTasks`: Dictionary of classification models to train and for which label variables
+- `dataFilter`: Dictionary indicating train/test split of data
 
-The results file produced after successfully running the script can be parsed with the function `load_results_utility` provided in `utils/analyse_results.py`.
-
+The results file produced after successfully running the script will be written to `runs/utility` and can be parsed with the function `load_results_utility` provided in `utils/analyse_results.py`.
+A jupyter notebook to visualise and analyse the results is included at `notebooks/Analyse Results.ipynb`.
