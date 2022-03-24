@@ -7,4 +7,5 @@ pandas==1.4.1
 scipy==1.8.0
 seaborn==0.11.2
 sklearn==0.0
-ctgan=0.5.0
+ctgan==0.5.0
+pytest==7.1.0
